@@ -1,20 +1,17 @@
 import * as React from 'react';
-import { Container, Button, Grid, Header, Label, Segment } from 'semantic-ui-react';
+import { Container, Button, Grid, Header, Segment } from 'semantic-ui-react';
 
-import { shell } from '../utils/shell';
-import { succeeded } from '../utils/errorable';
+import { Actionable } from './contract';
 
 const bundle = require('../../data/bundle.json');
 
-interface State {
-  readonly version: string | null;
-  readonly error: string | null;
+interface Properties {
+  readonly parent: React.Component<any, Actionable, any>;
 }
 
-export default class Bundle extends React.Component<{}, State, {}>  {
-  constructor(props: Readonly<{}>) {
+export default class Bundle extends React.Component<Properties, {}, {}>  {
+  constructor(props: Readonly<Properties>) {
     super(props);
-    this.state = {version: null, error: null};
   }
 
   render() {
@@ -23,7 +20,6 @@ export default class Bundle extends React.Component<{}, State, {}>  {
         <Segment raised>
           <Header sub>Version {bundle.version}</Header>
           <Header as="h4" dividing>{bundle.description || 'No description available'}</Header>
-          <Label>Duffle version = {this.state.version || this.state.error || 'wtf'}</Label>
         </Segment>
         <Grid centered columns={3}>
           <Grid.Row>
@@ -42,16 +38,7 @@ export default class Bundle extends React.Component<{}, State, {}>  {
     );
   }
 
-  private async install(): Promise<void> {
-    const sr = await shell.exec('d:\\GoProjects\\src\\github.com\\deis\\duffle\\bin\\duffle.exe version');
-    if (succeeded(sr)) {
-      if (sr.result.code === 0) {
-        this.setState({ version: sr.result.stdout.trim(), error: null });
-      } else {
-        this.setState({ version: null, error: sr.result.stderr.trim() });
-      }
-    } else {
-      this.setState({ version: null, error: sr.error[0] });
-    }
+  private install(): void {
+    this.props.parent.setState({ action: 'install' });
   }
 }

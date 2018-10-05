@@ -14,14 +14,7 @@ interface State {
 export default class Bundle extends React.Component<{}, State, {}>  {
   constructor(props: Readonly<{}>) {
     super(props);
-    this.setState({version: null, error: null});
-  }
-
-  private statusText(): string {
-    if (!this.state) {
-      return 'it clicks us the button or us gives it the hose again';
-    }
-    return this.state.version || this.state.error || 'wtf';
+    this.state = {version: null, error: null};
   }
 
   render() {
@@ -31,7 +24,7 @@ export default class Bundle extends React.Component<{}, State, {}>  {
           {bundle.name}
         </Segment>
         <Segment raised style={{height: '96px', overflow: 'auto'}}>
-          {this.statusText()}
+          {this.state.version || this.state.error || 'wtf'}
         </Segment>
 
         <Grid centered>

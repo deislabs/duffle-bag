@@ -1,17 +1,18 @@
 import * as React from 'react';
 import Bundle from './Bundle';
+import { Container, Segment, Header } from 'semantic-ui-react';
 
-const styles = require('./Home.scss');
+const bundle = require('../../data/bundle.json');
 
 export default class Home extends React.Component {
   render() {
     return (
-      <div>
-        <div className={styles.container} data-tid="container">
-            <h2>Hello Duffle</h2>
-            <Bundle />
-        </div>
-      </div>
+      <Container style={{ marginTop: '3em' }}>
+        <Segment raised>
+          <Header as="h2">{bundle.name}</Header>
+        </Segment>
+        <Bundle />
+      </Container>
     );
   }
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Button, Grid /*, Header, Icon, Label */, Segment, Step /*, TextArea */ } from 'semantic-ui-react';
+import { Container, Button, Grid, Header, Label, Segment } from 'semantic-ui-react';
 
 import { shell } from '../utils/shell';
 import { succeeded } from '../utils/errorable';
@@ -20,33 +20,24 @@ export default class Bundle extends React.Component<{}, State, {}>  {
   render() {
     return (
       <Container>
-        <Segment raised style={{height: '96px', overflow: 'auto'}}>
-          {bundle.name}
+        <Segment raised>
+          <Header sub>Version {bundle.version}</Header>
+          <Header as="h4" dividing>{bundle.description || 'No description available'}</Header>
+          <Label>Duffle version = {this.state.version || this.state.error || 'wtf'}</Label>
         </Segment>
-        <Segment raised style={{height: '96px', overflow: 'auto'}}>
-          {this.state.version || this.state.error || 'wtf'}
-        </Segment>
-
-        <Grid centered>
-          <Step.Group>
-            <Step disabled>
-              <Step.Content>
-                <Button onClick={() => this.install()}>Install</Button>
-              </Step.Content>
-            </Step>
-            <Step disabled>
-              <Step.Content>
-                <Button>Upgrade</Button>
-              </Step.Content>
-            </Step>
-            <Step disabled>
-              <Step.Content>
-                <Button>Uninstall</Button>
-              </Step.Content>
-            </Step>
-          </Step.Group>
+        <Grid centered columns={3}>
+          <Grid.Row>
+            <Grid.Column>
+              <Button onClick={() => this.install()}>Install</Button>
+            </Grid.Column>
+            <Grid.Column>
+              <Button>Upgrade</Button>
+            </Grid.Column>
+            <Grid.Column>
+              <Button>Uninstall</Button>
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
-
       </Container>
     );
   }

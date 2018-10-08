@@ -62,6 +62,9 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private inputWidget(pd: ParameterDefinition): JSX.Element {
+    if (pd.type === "bool") {
+      return this.boolInputWidget(pd);
+    }
     if (pd.allowedValues && pd.allowedValues.length > 0) {
       return this.selectInputWidget(pd);
     }
@@ -74,6 +77,11 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private selectInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
+    return (<Form.Select key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
+  }
+
+  private boolInputWidget(pd: ParameterDefinition): JSX.Element {
+    const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
     return (<Form.Select key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
   }
 

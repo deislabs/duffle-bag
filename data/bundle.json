@@ -11,6 +11,9 @@
       "defaultValue": 8080,
       "type": "int"
     },
+    "somebool": {
+      "type": "bool"
+    },
     "favouriteWomble": {
       "type": "string",
       "allowedValues": [

@@ -1,7 +1,7 @@
 export interface ParameterDefinition {
     readonly name: string;
     readonly type: string;
-    readonly allowedValues?: number[] | string[] | boolean[];
+    readonly allowedValues?: (number | string | boolean)[]; // number[] | string[] | boolean[];
     readonly defaultValue?: number | string | boolean;
     readonly metadata?: { description?: string };
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Container, Form, Header, Input, InputOnChangeData, Segment, Label } from 'semantic-ui-react';
+import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -30,9 +30,15 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.state = { parameterValues: ipvObj };
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
   }
 
-  private handleInputChange(e: any, c: InputOnChangeData & {name: keyof State}) {
+  private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
+    const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: c.value });
+    this.setState({ parameterValues: parameterValues });
+  }
+
+  private handleSelectChange(e: any, c: DropdownProps/* & {name: keyof State}*/) {
     const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: c.value });
     this.setState({ parameterValues: parameterValues });
   }
@@ -56,7 +62,19 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private inputWidget(pd: ParameterDefinition): JSX.Element {
-    return (<Form.Field key={pd.name} name={pd.name} control={Input} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
+    if (pd.allowedValues && pd.allowedValues.length > 0) {
+      return this.selectInputWidget(pd);
+    }
+    return this.freeformInputWidget(pd);
+  }
+
+  private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
+    return (<Form.Input key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
+  }
+
+  private selectInputWidget(pd: ParameterDefinition): JSX.Element {
+    const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
+    return (<Form.Select key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
   }
 
   private async install(): Promise<void> {

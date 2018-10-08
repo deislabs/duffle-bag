@@ -39,11 +39,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   render() {
     const credentialsUI = this.hasCredentials ? (<Label>You need credentials</Label>) : (<Label>This bundle does not require any credentials</Label>);
-    const parameterUIs = // this.parameterDefinitions.map((pd) => inputWidget(pd));
-      [
-        (<Form.Field key="port" name="port" control={Input} label="Port" type="number" value={this.state.parameterValues.port} onChange={this.handleInputChange} />),
-        (<Form.Field key="favuriteWomble" name="favouriteWomble" control={Input} label="Favourite Womble" type="string" value={this.state.parameterValues.favouriteWomble} onChange={this.handleInputChange} />)
-      ];
+    const parameterUIs = this.parameterDefinitions.map((pd) => this.inputWidget(pd));
 
     return (
       <Container>
@@ -57,6 +53,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         </Segment>
       </Container>
     );
+  }
+
+  private inputWidget(pd: ParameterDefinition): JSX.Element {
+    return (<Form.Field key={pd.name} name={pd.name} control={Input} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
   }
 
   private async install(): Promise<void> {

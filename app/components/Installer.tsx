@@ -22,7 +22,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
 
-    this.parameterDefinitions = parseParameters(bundle)
+    this.parameterDefinitions = parseParameters(bundle);
     this.hasCredentials = hasCredentials(bundle);
 
     const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: (pd.defaultValue || '').toString() }));
@@ -43,7 +43,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       [
         (<Form.Field key="port" name="port" control={Input} label="Port" type="number" value={this.state.parameterValues.port} onChange={this.handleInputChange} />),
         (<Form.Field key="favuriteWomble" name="favouriteWomble" control={Input} label="Favourite Womble" type="string" value={this.state.parameterValues.favouriteWomble} onChange={this.handleInputChange} />)
-      ]
+      ];
 
     return (
       <Container>

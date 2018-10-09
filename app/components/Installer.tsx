@@ -23,6 +23,7 @@ enum InstallProgress {
 }
 
 interface State {
+  installationName: string;
   parameterValues: { [key: string]: string };
   installProgress: InstallProgress;
   installResult: string;
@@ -41,13 +42,19 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: (pd.defaultValue || '').toString() }));
     const ipvObj: { [key: string]: string } = Object.assign({}, ...initialParameterValues);
     this.state = {
+      installationName: bundle.name,
       parameterValues: ipvObj,
       installProgress: InstallProgress.NotStarted,
       installResult: ''
     };
 
+    this.handleNameChange = this.handleNameChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
+  }
+
+  private handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
+    this.setState({ installationName: c.value });
   }
 
   private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
@@ -79,15 +86,24 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
     return (
       <Container>
-        <Segment raised>
-          <Header sub>Installation parameters</Header>
-          <Form>
+        <Form>
+          <Segment raised>
+            <Header sub>Install as</Header>
+            <Form.Input key="installationName" name="installationName" label="Installation name" type="text" value={this.state.installationName} onChange={this.handleNameChange} />
+          </Segment>
+          <Segment raised>
+            <Header sub>Installation parameters</Header>
             {...parameterUIs}
+          </Segment>
+          <Segment raised>
+            <Header sub>Credentials</Header>
             {credentialsUI}
-          </Form>
-          <Button onClick={() => this.install()}>Install</Button>
-          {this.progress()}
-        </Segment>
+          </Segment>
+          <Segment raised>
+            <div><Button onClick={() => this.install()}>Install</Button></div>
+            {this.progress()}
+          </Segment>
+        </Form>
       </Container>
     );
   }
@@ -117,13 +133,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private async install(): Promise<void> {
-    for (const k of Object.keys(this.state.parameterValues)) {
-      console.log(`${k}=${this.state.parameterValues[k]}`);
-    }
     this.setState({ installProgress: InstallProgress.InProgress });
     const bundleJSON = JSON.stringify(bundle, undefined, 2);
     const result = await withTempFile(bundleJSON, "json", async (tempFile) => {
-      const name = "hellowerble";
+      const name = this.state.installationName;
       return await duffle.installFile(shell.shell, tempFile, name, this.state.parameterValues, /*credentialSet*/ undefined);
     });
     if (failed(result)) {

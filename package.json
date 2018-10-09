@@ -165,6 +165,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.2.0",
     "@types/shelljs": "^0.8.0",
+    "@types/tmp": "0.0.33",
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
@@ -178,7 +179,8 @@
     "redux-thunk": "^2.1.0",
     "semantic-ui-react": "^0.82.1",
     "shelljs": "^0.8.2",
-    "source-map-support": "^0.5.0"
+    "source-map-support": "^0.5.0",
+    "tmp": "^0.0.33"
   },
   "devEngines": {
     "node": ">=6.x",

@@ -110,7 +110,7 @@ async function execObj<T>(cmd: string, cmdDesc: string, opts: ExecOpts, fn: ((st
             const value = fn(sr.stdout);
             return { succeeded: true, result: value };
         } else {
-            return { succeeded: false, error: [`${cmdDesc} error: ${sr.stderr}`] };
+            return { succeeded: false, error: [`${cmdDesc} error ${sr.code}: ${sr.stderr}`] };
         }
     } catch (ex) {
         return { succeeded: false, error: [`Error invoking '${cmd}: ${ex}`] };

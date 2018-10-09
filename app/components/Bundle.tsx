@@ -24,13 +24,13 @@ export default class Bundle extends React.Component<Properties, {}, {}>  {
         <Grid centered columns={3}>
           <Grid.Row>
             <Grid.Column>
-              <Button onClick={() => this.install()}>Install</Button>
+              <Button primary onClick={() => this.install()}>Install</Button>
             </Grid.Column>
             <Grid.Column>
-              <Button>Upgrade</Button>
+              <Button disabled>Upgrade</Button>
             </Grid.Column>
             <Grid.Column>
-              <Button>Uninstall</Button>
+              <Button disabled>Uninstall</Button>
             </Grid.Column>
           </Grid.Row>
         </Grid>

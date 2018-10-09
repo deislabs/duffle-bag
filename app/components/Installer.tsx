@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress } from 'semantic-ui-react';
+import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -89,7 +89,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         <Form>
           <Segment raised>
             <Header sub>Install as</Header>
-            <Form.Input key="installationName" name="installationName" label="Installation name" type="text" value={this.state.installationName} onChange={this.handleNameChange} />
+            <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} onChange={this.handleNameChange} />
           </Segment>
           <Segment raised>
             <Header sub>Installation parameters</Header>
@@ -100,7 +100,8 @@ export default class Installer extends React.Component<Properties, State, {}>  {
             {credentialsUI}
           </Segment>
           <Segment raised>
-            <div><Button onClick={() => this.install()}>Install</Button></div>
+            <div><Button primary onClick={() => this.install()}>Install</Button></div>
+            <Divider />
             {this.progress()}
           </Segment>
         </Form>
@@ -119,17 +120,17 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
-    return (<Form.Input key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
+    return (<Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
   }
 
   private selectInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
+    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
   }
 
   private boolInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
+    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
   }
 
   private async install(): Promise<void> {

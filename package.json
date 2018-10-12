@@ -75,7 +75,13 @@
       "output": "release"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "extraResources": [
+        {
+          "from": "d:\\GoProjects\\src\\github.com\\deis\\duffle\\bin\\duffle.exe",
+          "to": "dufflebin/win32/duffle.exe"
+        }
+      ]
     },
     "linux": {
       "target": [

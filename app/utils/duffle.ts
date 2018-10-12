@@ -1,12 +1,20 @@
 import * as path from 'path';
 
-import { Errorable } from '../utils/errorable';
+import { Errorable, succeeded } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import * as pairs from '../utils/pairs';
 
+export interface BinaryInfo {
+  readonly path: string;
+  readonly version: string;
+}
+
 async function invokeObj<T>(sh: shell.Shell, command: string, args: string, opts: shell.ExecOpts, fn: (stdout: string) => T): Promise<Errorable<T>> {
-    const bin = 'd:\\GoProjects\\src\\github.com\\deis\\duffle\\bin\\duffle.exe' /* config.dufflePath() */ || 'duffle';
-    const cmd = `${bin} ${command} ${args}`;
+    const bin = await findDuffleBinary(sh);
+    if (!bin) {
+      return { succeeded: false, error: ["Can't find Duffle on this machine. Install it on your system PATH and restart the installer."] };
+    }
+    const cmd = `${bin.path} ${command} ${args}`;
     console.log(`$ ${cmd}`);
     return await sh.execObj<T>(
         cmd,
@@ -98,4 +106,52 @@ export async function generateCredentialsForFile(sh: shell.Shell, bundleFilePath
 
 export async function generateCredentialsForBundle(sh: shell.Shell, bundleName: string, name: string): Promise<Errorable<null>> {
     return await invokeObj(sh, 'credentials generate', `${name} ${bundleName}`, {}, (s) => null);
+}
+
+// Cache
+let duffle: BinaryInfo | undefined = undefined;
+
+export async function findDuffleBinary(sh: shell.Shell): Promise<BinaryInfo | undefined> {
+  if (!duffle) {
+    duffle = await findDuffleBinaryCore(sh);
+  }
+  return duffle;
+}
+
+async function findDuffleBinaryCore(sh: shell.Shell): Promise<BinaryInfo | undefined> {
+  // Use the user's installed duffle if they have one
+  const sr = await sh.exec('duffle version');
+  if (succeeded(sr) && sr.result.code === 0) {
+    return { path: 'duffle', version: sr.result.stdout.trim() };
+  }
+
+  // Look for an embedded duffle binary
+  const resourcePath = duffleResourcePath(sh.platform());
+  if (!resourcePath) {
+    return undefined;
+  }
+  if (!process.resourcesPath) {
+    return undefined;
+  }
+  const binPath = path.join(process.resourcesPath, resourcePath);
+  const srr = await sh.exec(`${binPath} version`);
+  if (succeeded(srr) && srr.result.code === 0) {
+    return { path: binPath, version: srr.result.stdout.trim() };
+  }
+
+  // Give up
+  return undefined;
+}
+
+function duffleResourcePath(platform: shell.Platform): string | undefined {
+  switch (platform) {
+    case shell.Platform.Windows:
+      return "dufflebin/win32/duffle.exe";
+    case shell.Platform.Linux:
+      return "dufflebin/linux/duffle";
+    case shell.Platform.MacOS:
+      return "dufflebin/darwin/duffle";
+    default:
+      return undefined;
+  }
 }

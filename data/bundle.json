@@ -10,6 +10,22 @@
     "port": {
       "defaultValue": 8080,
       "type": "int"
+    },
+    "somebool": {
+      "type": "bool"
+    },
+    "favouriteWomble": {
+      "type": "string",
+      "allowedValues": [
+        "Great Uncle Bulgaria",
+        "Orinoco",
+        "Madame Cholet",
+        "Tomsk"
+      ],
+      "defaultValue": "Orinoco",
+      "metadata": {
+        "description": "Used when going underground, going overground and/or wombling free"
+      }
     }
   }
 }

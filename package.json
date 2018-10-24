@@ -1,8 +1,8 @@
 {
-  "name": "electron-react-typescript-boilerplate",
-  "productName": "ElectronReactTypescript",
+  "name": "duffle-bag",
+  "productName": "Duffle Bag",
   "version": "0.10.0",
-  "description": "Electron application boilerplate based on TypeScript, React, React Router, Webpack, React Hot Loader for rapid application development",
+  "description": "Self-contained installer for the 'helloworld' CNAB bundle",
   "main": "main.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test node --trace-warnings ./test/runTests.js",
@@ -45,8 +45,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReactTypescript",
-    "appId": "io.github.irath96.ElectronReactTypescript",
+    "productName": "Duffle Bag - helloworld",
+    "appId": "com.microsoft.dufflebag.helloworld",
     "dmg": {
       "contents": [
         {
@@ -75,7 +75,13 @@
       "output": "release"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "extraResources": [
+        {
+          "from": "d:\\GoProjects\\src\\github.com\\deis\\duffle\\bin\\duffle.exe",
+          "to": "dufflebin/win32/duffle.exe"
+        }
+      ]
     },
     "linux": {
       "target": [
@@ -89,27 +95,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/irath96/electron-react-typescript-boilerplate.git"
+    "url": "https://github.com/deis/duffle-bag.git"
   },
   "author": {
-    "name": "Alexander Rath",
-    "email": "irath96@gmail.com",
-    "url": "https://github.com/irath96"
+    "name": "Ivan Towlson",
+    "email": "itowlson@microsoft.com",
+    "url": "https://github.com/itowlson"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/irath96/electron-react-typescript-boilerplate/issues"
+    "url": "https://github.com/deis/duffle-bag/issues"
   },
   "keywords": [
-    "electron",
-    "boilerplate",
-    "react",
-    "react-router",
-    "flux",
-    "webpack",
-    "react-hot"
+    "cnab",
+    "duffle"
   ],
-  "homepage": "https://github.com/irath96/electron-react-typescript-boilerplate#readme",
+  "homepage": "https://github.com/deis/duffle-bag#readme",
   "devDependencies": {
     "@types/enzyme": "^3.1.1",
     "@types/history": "^4.5.2",
@@ -163,6 +164,9 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.2.0",
+    "@types/shelljs": "^0.8.0",
+    "@types/tmp": "0.0.33",
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.1",
@@ -174,7 +178,10 @@
     "react-router-redux": "^5.0.0-alpha.6",
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
-    "source-map-support": "^0.5.0"
+    "semantic-ui-react": "^0.82.1",
+    "shelljs": "^0.8.2",
+    "source-map-support": "^0.5.0",
+    "tmp": "^0.0.33"
   },
   "devEngines": {
     "node": ">=6.x",

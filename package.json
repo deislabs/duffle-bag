@@ -74,12 +74,20 @@
       "buildResources": "resources",
       "output": "release"
     },
+    "mac": {
+      "extraResources": [
+        {
+          "from": "./dufflebin/darwin-amd64/*",
+          "to": "dufflebin/darwin"
+        }
+      ]
+    },
     "win": {
       "target": "nsis",
       "extraResources": [
         {
-          "from": "d:\\GoProjects\\src\\github.com\\deis\\duffle\\bin\\duffle.exe",
-          "to": "dufflebin/win32/duffle.exe"
+          "from": "./dufflebin/windows-amd64/*",
+          "to": "dufflebin/win32"
         }
       ]
     },
@@ -87,6 +95,12 @@
       "target": [
         "deb",
         "AppImage"
+      ],
+      "extraResources": [
+        {
+          "from": "./dufflebin/linux-amd64/*",
+          "to": "dufflebin/linux"
+        }
       ]
     }
   },

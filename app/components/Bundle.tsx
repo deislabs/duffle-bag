@@ -12,13 +12,13 @@ interface Properties {
 }
 
 interface State {
-  duffle: BinaryInfo | undefined;
+  duffle: 'pending' | BinaryInfo | undefined;
 }
 
 export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
-    this.state = { duffle: undefined };
+    this.state = { duffle: 'pending' };
   }
 
   async componentDidMount() {
@@ -54,6 +54,9 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
 
   private dufflePanel(): JSX.Element {
     if (this.state.duffle) {
+      if (this.state.duffle === 'pending') {
+        return (<Header sub>Finding Duffle binary...</Header>);
+      }
       return (<Header sub>Duffle version {this.state.duffle.version}</Header>);
     }
     return (<Header sub>Duffle not found - cannot install bundle</Header>);

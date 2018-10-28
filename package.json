@@ -77,7 +77,7 @@
     "mac": {
       "extraResources": [
         {
-          "from": "./dufflebin/darwin-amd64/*",
+          "from": "./dufflebin/darwin-amd64/",
           "to": "dufflebin/darwin"
         }
       ]
@@ -86,7 +86,7 @@
       "target": "nsis",
       "extraResources": [
         {
-          "from": "./dufflebin/windows-amd64/*",
+          "from": "./dufflebin/windows-amd64/",
           "to": "dufflebin/win32"
         }
       ]
@@ -98,7 +98,7 @@
       ],
       "extraResources": [
         {
-          "from": "./dufflebin/linux-amd64/*",
+          "from": "./dufflebin/linux-amd64/",
           "to": "dufflebin/linux"
         }
       ]

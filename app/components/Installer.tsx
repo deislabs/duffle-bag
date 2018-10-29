@@ -143,8 +143,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     });
     if (failed(result)) {
       this.setState({ installProgress: InstallProgress.Failed, installResult: result.error[0] });
+      this.props.parent.setState({ action: 'report', state: { succeeded: false, output: '', error: result.error[0] } });
       return;
     }
+    this.props.parent.setState({ action: 'report', state: { succeeded: false, output: 'TODO: get this back', error: '' } });
     this.setState({ installProgress: InstallProgress.Succeeded });
   }
 }

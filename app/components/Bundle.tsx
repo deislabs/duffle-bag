@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { Container, Button, Grid, Header, Segment } from 'semantic-ui-react';
+import { Container, Button, Grid, Header, Message, Segment } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable } from '../utils/errorable';
+
+const description = tryLoadDescription();
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -54,13 +56,15 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   render() {
+    const descPanel = this.descriptionPanel();
     return (
       <Container>
         <Segment raised>
           <Header sub>Version {embedded.bundle.version}</Header>
           {this.signaturePanel()}
-          <Header as="h4" dividing>{embedded.bundle.description || 'No description available'}</Header>
+          {descPanel.location === 'header' ? descPanel.content : ''}
         </Segment>
+        {descPanel.location === 'segment' ? descPanel.content : ''}
         <Grid centered columns={3}>
           <Grid.Row>
             <Grid.Column>
@@ -74,9 +78,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
             </Grid.Column>
           </Grid.Row>
         </Grid>
-        <Segment raised>
-          {this.dufflePanel()}
-        </Segment>
+        {this.dufflePanel()}
       </Container>
     );
   }
@@ -100,11 +102,20 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   private dufflePanel(): JSX.Element {
     if (this.state.duffle) {
       if (this.state.duffle === 'pending') {
-        return (<Header sub>Finding Duffle binary...</Header>);
+        return (<Message info>Finding Duffle binary...</Message>);
       }
-      return (<Header sub>Duffle version {this.state.duffle.version}</Header>);
+      return (<Message info>Duffle version {this.state.duffle.version}</Message>);
     }
-    return (<Header sub>Duffle not found - cannot install bundle</Header>);
+    return (<Message error>Duffle not found - cannot install bundle</Message>);
+  }
+
+  private descriptionPanel(): { location: 'header' | 'segment', content: JSX.Element } {
+    if (description.format === 'text') {
+      return { location: 'header', content: (<Header as="h4">{description.text}</Header>) };
+    } else {
+      const paras = description.paragraphs.map((p) => (<p>{p}</p>));
+      return { location: 'segment', content: (<Message info>{...paras}</Message>) };
+    }
   }
 
   private signingStatus(r: Errorable<SignatureVerification>): VerificationUI {
@@ -125,4 +136,30 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   private install(): void {
     this.props.parent.setState({ action: 'install' });
   }
+}
+
+// TODO: this seems rude... HTML would be a nicer authoring experience
+interface JsonDescription {
+  readonly format: 'json';
+  readonly paragraphs: string[];
+}
+
+interface PlainTextDescription {
+  readonly format: 'text';
+  readonly text: string;
+}
+
+type Description = JsonDescription | PlainTextDescription;
+
+function tryLoadDescription(): Description {
+  try {
+    const description = require('../../data/description.json');
+    if (description && description.paragraphs) {
+      return { format: 'json', paragraphs: description.paragraphs };
+    }
+  } catch {
+    // ignore
+  }
+
+  return { format: 'text', text: bundle.description || 'No description available' };
 }

@@ -10,6 +10,7 @@ import { failed } from '../utils/errorable';
 import { withTempFile } from '../utils/tempfile';
 
 const bundle = require('../../data/bundle.json');
+const cnab = loadCNAB();
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -27,6 +28,14 @@ interface State {
   parameterValues: { [key: string]: string };
   installProgress: InstallProgress;
   installResult: string;
+}
+
+function loadCNAB(): string | undefined {
+  try {
+    return require('../../data/bundle.cnab');
+  } catch {
+    return undefined;
+  }
 }
 
 export default class Installer extends React.Component<Properties, State, {}>  {
@@ -135,8 +144,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private async install(): Promise<void> {
     this.setState({ installProgress: InstallProgress.InProgress });
-    const bundleJSON = JSON.stringify(bundle, undefined, 2);
-    const result = await withTempFile(bundleJSON, "json", async (tempFile) => {
+    // TODO: would prefer to install the signed bundle if present.  But this introduces
+    // issues of key management.  If we do continue with using the unsigned file, then
+    // we may need to pass --insecure to the Duffle CLI.
+    // TODO: still having trouble even loading embedded files, possibly due to webpack.
+    const bundleText = cnab || JSON.stringify(bundle, undefined, 2);
+    const bundleExtension = cnab ? "cnab" : "json";
+    const result = await withTempFile(bundleText, bundleExtension, async (tempFile) => {
       const name = this.state.installationName;
       return await duffle.installFile(shell.shell, tempFile, name, this.state.parameterValues, /*credentialSet*/ undefined);
     });

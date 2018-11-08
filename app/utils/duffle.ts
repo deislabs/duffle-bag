@@ -70,11 +70,11 @@ export async function pushFile(sh: shell.Shell, filePath: string, repo: string):
 }
 
 export async function installFile(sh: shell.Shell, bundleFilePath: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<null>> {
-    return await invokeObj(sh, 'install', `${name} -f "${bundleFilePath}" ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => null);
+    return await invokeObj(sh, 'install', `${name} --insecure -f "${bundleFilePath}" ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => null);
 }
 
 export async function installBundle(sh: shell.Shell, bundleName: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<null>> {
-    return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => null);
+    return await invokeObj(sh, 'install', `${name} ${bundleName} --insecure ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => null);
 }
 
 function paramsArgs(parameters: { [key: string]: string }): string {

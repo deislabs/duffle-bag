@@ -146,6 +146,11 @@ module.exports = merge(baseConfig, {
       {
         test: /\.cnab$/,
         use: 'raw-loader',
+      },
+      // Description
+      {
+        test: /description.html$/,
+        use: 'raw-loader',
       }
     ]
   },

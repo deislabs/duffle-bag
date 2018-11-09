@@ -113,8 +113,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     if (description.format === 'text') {
       return { location: 'header', content: (<Header as="h4">{description.text}</Header>) };
     } else {
-      const paras = description.paragraphs.map((p) => (<p>{p}</p>));
-      return { location: 'segment', content: (<Message info>{...paras}</Message>) };
+      return { location: 'segment', content: (<Message info><div dangerouslySetInnerHTML={{__html: description.text}} /></Message>) };
     }
   }
 
@@ -138,24 +137,16 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 }
 
-// TODO: this seems rude... HTML would be a nicer authoring experience
-interface JsonDescription {
-  readonly format: 'json';
-  readonly paragraphs: string[];
-}
-
-interface PlainTextDescription {
-  readonly format: 'text';
+interface Description {
+  readonly format: 'html' | 'text';
   readonly text: string;
 }
 
-type Description = JsonDescription | PlainTextDescription;
-
 function tryLoadDescription(): Description {
   try {
-    const description = require('../../data/description.json');
-    if (description && description.paragraphs) {
-      return { format: 'json', paragraphs: description.paragraphs };
+    const description = require('../../data/description.html');
+    if (description) {
+      return { format: 'html', text: description };
     }
   } catch {
     // ignore

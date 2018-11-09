@@ -9,6 +9,12 @@ export interface BinaryInfo {
   readonly version: string;
 }
 
+export interface SignatureVerification {
+  readonly verified: boolean;
+  readonly signer: string;
+  readonly reason: string;
+}
+
 async function invokeObj<T>(sh: shell.Shell, command: string, args: string, opts: shell.ExecOpts, fn: (stdout: string) => T): Promise<Errorable<T>> {
     const bin = await findDuffleBinary(sh);
     if (!bin) {
@@ -24,11 +30,32 @@ async function invokeObj<T>(sh: shell.Shell, command: string, args: string, opts
     );
 }
 
+async function invokeObjFromSR<T>(sh: shell.Shell, command: string, args: string, opts: shell.ExecOpts, fn: (sr: shell.ShellResult) => Errorable<T>): Promise<Errorable<T>> {
+  const bin = await findDuffleBinary(sh);
+  if (!bin) {
+    return { succeeded: false, error: ["Can't find Duffle on this machine. Install it on your system PATH and restart the installer."] };
+  }
+  const cmd = `${bin.path} ${command} ${args}`;
+  console.log(`$ ${cmd}`);
+  return await sh.execObjFromSR<T>(
+      cmd,
+      opts,
+      andLogStdout(fn)
+  );
+}
+
 function andLog<T>(fn: (s: string) => T): (s: string) => T {
     return (s: string) => {
         console.log(s);
         return fn(s);
     };
+}
+
+function andLogStdout<T>(fn: (sr: shell.ShellResult) => Errorable<T>): (sr: shell.ShellResult) => Errorable<T> {
+  return (sr: shell.ShellResult) => {
+      console.log(sr.stdout);
+      return fn(sr);
+  };
 }
 
 export function home(sh: shell.Shell): string {
@@ -75,6 +102,16 @@ export async function installFile(sh: shell.Shell, bundleFilePath: string, name:
 
 export async function installBundle(sh: shell.Shell, bundleName: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<null>> {
     return await invokeObj(sh, 'install', `${name} ${bundleName} --insecure ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => null);
+}
+
+export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promise<Errorable<SignatureVerification>> {
+    function parse(sr: shell.ShellResult): Errorable<SignatureVerification> {
+      if (sr.code === 0) {
+          return { succeeded: true, result: { verified: true, signer: sr.stdout.trim(), reason: '' } };
+      }
+      return { succeeded: true, result: { verified: false, signer: '', reason: sr.stderr.trim() } };
+    }
+    return await invokeObjFromSR(sh, 'sig verify', `${bundleFilePath}`, {}, parse);
 }
 
 function paramsArgs(parameters: { [key: string]: string }): string {

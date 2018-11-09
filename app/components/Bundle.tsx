@@ -161,5 +161,5 @@ function tryLoadDescription(): Description {
     // ignore
   }
 
-  return { format: 'text', text: bundle.description || 'No description available' };
+  return { format: 'text', text: embedded.bundle.description || 'No description available' };
 }

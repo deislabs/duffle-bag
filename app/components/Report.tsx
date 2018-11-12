@@ -46,7 +46,7 @@ export default class Report extends React.Component<Properties, State, {}>  {
 
   errorPanel(): JSX.Element | undefined  {
     if (this.props.error) {
-      return (<Message info>{this.props.error}</Message>);
+      return (<Message error>{this.props.error}</Message>);
     }
     return undefined;
   }

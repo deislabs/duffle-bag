@@ -102,7 +102,12 @@ module.exports = merge(baseConfig, {
       },
       // Description
       {
-        test: /description.html$/,
+        test: /description\.html$/,
+        use: 'raw-loader',
+      },
+      // Post install
+      {
+        test: /postinstall(.*)\.html$/,
         use: 'raw-loader',
       }
     ]

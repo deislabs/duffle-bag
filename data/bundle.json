@@ -30,5 +30,13 @@
         "description": "Used when going underground, going overground and/or wombling free"
       }
     }
+  },
+  "credentials": {
+    "secret_password": {
+      "env": "so_very_secret"
+    },
+    "secret_cert": {
+      "path": "/so/very/secret"
+    }
   }
 }

@@ -3,11 +3,13 @@ import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, Dro
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
-import { hasCredentials } from '../utils/credentials';
+import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
 import { failed } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
+import { withOptionalTempFile } from '../utils/tempfile';
+import { cantHappen } from '../utils/never';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -23,25 +25,29 @@ enum InstallProgress {
 interface State {
   installationName: string;
   parameterValues: { [key: string]: string };
+  credentialValues: { [key: string]: CredentialSetEntry };
   installProgress: InstallProgress;
   installResult: string;
 }
 
 export default class Installer extends React.Component<Properties, State, {}>  {
   private readonly parameterDefinitions: ParameterDefinition[];
-  private readonly hasCredentials: boolean;
+  private readonly credentials: BundleCredential[];
 
   constructor(props: Readonly<Properties>) {
     super(props);
 
     this.parameterDefinitions = parseParameters(embedded.bundle);
-    this.hasCredentials = hasCredentials(embedded.bundle);
+    this.credentials = parseCredentials(embedded.bundle);
 
     const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: (pd.defaultValue || '').toString() }));
     const ipvObj: { [key: string]: string } = Object.assign({}, ...initialParameterValues);
+    const initialCredentialValues = this.credentials.map((c) => this.initialCredential(c));
+    const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
     this.state = {
       installationName: embedded.bundle.name,
       parameterValues: ipvObj,
+      credentialValues: icvObj,
       installProgress: InstallProgress.NotStarted,
       installResult: ''
     };
@@ -49,6 +55,8 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.handleCredentialValueChange = this.handleCredentialValueChange.bind(this);
+    this.handleCredentialKindChange = this.handleCredentialKindChange.bind(this);
   }
 
   private handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
@@ -65,6 +73,39 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.setState({ parameterValues: parameterValues });
   }
 
+  private handleCredentialKindChange(e: any, c: DropdownProps/* & {name: keyof State}*/) {
+    const v = this.state.credentialValues[c.name];
+    const newv = Object.assign({}, v, { kind: c.value });
+    const n: string = c.name;
+    const credentialValues = Object.assign({}, this.state.credentialValues, { [n]: newv });
+    this.setState({ credentialValues: credentialValues });
+  }
+
+  private handleCredentialValueChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
+    const v = this.state.credentialValues[c.name];
+    const newv = Object.assign({}, v, { value: c.value });
+    const n: string = c.name;
+    const credentialValues = Object.assign({}, this.state.credentialValues, { [n]: newv });
+    this.setState({ credentialValues: credentialValues });
+  }
+
+  private initialCredential(credential: BundleCredential): { [key: string]: CredentialSetEntry } {
+    const destKind = credential.env ? 'env' : 'path';
+    const destRef = credential.env || credential.path || '';
+    return {
+      [credential.name]: {
+        destinationKind: destKind,
+        destinationRef: destRef,
+        kind: 'value',
+        value: ''
+      }
+    };
+  }
+
+  private get hasCredentials(): boolean {
+    return this.credentials && this.credentials.length > 0;
+  }
+
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
       case InstallProgress.NotStarted:
@@ -79,9 +120,6 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   render() {
-    const credentialsUI = this.hasCredentials ? (<Label>You need credentials</Label>) : (<Label>This bundle does not require any credentials</Label>);
-    const parameterUIs = this.parameterDefinitions.map((pd) => this.inputWidget(pd));
-
     return (
       <Container>
         <Form>
@@ -91,11 +129,11 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           </Segment>
           <Segment raised>
             <Header sub>Installation parameters</Header>
-            {...parameterUIs}
+            {...this.parametersUI()}
           </Segment>
           <Segment raised>
             <Header sub>Credentials</Header>
-            {credentialsUI}
+            {this.credentialsUI()}
           </Segment>
           <Segment raised>
             <div><Button primary onClick={() => this.install()}>Install</Button></div>
@@ -105,6 +143,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         </Form>
       </Container>
     );
+  }
+
+  private parametersUI(): JSX.Element[] {
+    if (!this.parameterDefinitions || this.parameterDefinitions.length === 0) {
+      return [ (<Label>This bundle does not require any parameters</Label>) ];
+    }
+    return this.parameterDefinitions.map((pd) => this.inputWidget(pd));
   }
 
   private inputWidget(pd: ParameterDefinition): JSX.Element {
@@ -131,16 +176,51 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
   }
 
+  private credentialsUI(): JSX.Element[] {
+    if (!this.hasCredentials) {
+      return [ (<Label>This bundle does not require any credentials</Label>) ];
+    }
+    return this.credentials.map((c) => this.credentialWidget(c));
+  }
+
+  private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
+
+  private credentialWidget(credential: BundleCredential): JSX.Element {
+    const opts = this.credentialSourceKinds.map((v) => ({ text: this.credentialSourceKindText(v), value: v }));
+    return (
+      <Form.Group inline>
+        <Form.Select inline key={credential.name} name={credential.name} options={opts} value={this.state.credentialValues[credential.name].kind} onChange={this.handleCredentialKindChange} />
+        <Form.Input inline key={credential.name} name={credential.name} label={credential.name} type="text"  value={this.state.credentialValues[credential.name].value} onChange={this.handleCredentialValueChange} />
+      </Form.Group>);
+  }
+
+  private credentialSourceKindText(source: CredentialSetEntry['kind']): string {
+    switch (source) {
+      case 'command':
+        return 'Command Output';
+      case 'env':
+        return 'Environment Variable';
+      case 'path':
+        return 'File';
+      case 'value':
+        return 'Value';
+      default:
+        return cantHappen(source);
+    }
+  }
+
   private async install(): Promise<void> {
     this.setState({ installProgress: InstallProgress.InProgress });
+    const credsYAML = this.hasCredentials ? credentialsYAML('temp', this.state.credentialValues) : undefined;
+    const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
+      return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+        const name = this.state.installationName;
+        return await duffle.installFile(shell.shell, bundleTempFile, name, this.state.parameterValues, credsTempFile);
+      });
+    });
     // TODO: would prefer to install the signed bundle if present.  But this introduces
     // issues of key management.  If we do continue with using the unsigned file, then
     // we may need to pass --insecure to the Duffle CLI.
-    // TODO: still having trouble even loading embedded files, possibly due to webpack.
-    const result = await embedded.withBundleFile(async (tempFile, isSigned) => {
-      const name = this.state.installationName;
-      return await duffle.installFile(shell.shell, tempFile, name, this.state.parameterValues, /*credentialSet*/ undefined);
-    });
     if (failed(result)) {
       this.setState({ installProgress: InstallProgress.Failed, installResult: result.error[0] });
       this.props.parent.setState({ action: 'report', state: { succeeded: false, output: '', error: result.error[0] } });

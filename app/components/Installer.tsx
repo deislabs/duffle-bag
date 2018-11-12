@@ -3,11 +3,12 @@ import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, Dro
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
-import { BundleCredential, parseCredentials, writeCredentialValuesToSet, CredentialSetEntry } from '../utils/credentials';
+import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
 import { failed } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
+import { withOptionalTempFile } from '../utils/tempfile';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -192,15 +193,16 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private async install(): Promise<void> {
     this.setState({ installProgress: InstallProgress.InProgress });
-    const credentialSet = await writeCredentialValuesToSet(this.state.credentialValues);
+    const credsYAML = this.hasCredentials ? credentialsYAML('temp', this.state.credentialValues) : undefined;
+    const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
+      return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+        const name = this.state.installationName;
+        return await duffle.installFile(shell.shell, bundleTempFile, name, this.state.parameterValues, credsTempFile);
+      });
+    });
     // TODO: would prefer to install the signed bundle if present.  But this introduces
     // issues of key management.  If we do continue with using the unsigned file, then
     // we may need to pass --insecure to the Duffle CLI.
-    // TODO: still having trouble even loading embedded files, possibly due to webpack.
-    const result = await embedded.withBundleFile(async (tempFile, isSigned) => {
-      const name = this.state.installationName;
-      return await duffle.installFile(shell.shell, tempFile, name, this.state.parameterValues, credentialSet);
-    });
     if (failed(result)) {
       this.setState({ installProgress: InstallProgress.Failed, installResult: result.error[0] });
       this.props.parent.setState({ action: 'report', state: { succeeded: false, output: '', error: result.error[0] } });

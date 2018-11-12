@@ -9,6 +9,7 @@ import * as shell from '../utils/shell';
 import { failed } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
 import { withOptionalTempFile } from '../utils/tempfile';
+import { cantHappen } from '../utils/never';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -182,13 +183,30 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.credentials.map((c) => this.credentialWidget(c));
   }
 
+  private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
+
   private credentialWidget(credential: BundleCredential): JSX.Element {
-    const opts = ['value', 'env', 'path', 'command'].map((v) => ({ text: v.toString(), value: v.toString() }));
+    const opts = this.credentialSourceKinds.map((v) => ({ text: this.credentialSourceKindText(v), value: v }));
     return (
       <Form.Group inline>
-        <Form.Input inline key={credential.name} name={credential.name} label={credential.name} type="text"  value={this.state.credentialValues[credential.name].value} onChange={this.handleCredentialValueChange} />
         <Form.Select inline key={credential.name} name={credential.name} options={opts} value={this.state.credentialValues[credential.name].kind} onChange={this.handleCredentialKindChange} />
+        <Form.Input inline key={credential.name} name={credential.name} label={credential.name} type="text"  value={this.state.credentialValues[credential.name].value} onChange={this.handleCredentialValueChange} />
       </Form.Group>);
+  }
+
+  private credentialSourceKindText(source: CredentialSetEntry['kind']): string {
+    switch (source) {
+      case 'command':
+        return 'Command Output';
+      case 'env':
+        return 'Environment Variable';
+      case 'path':
+        return 'File';
+      case 'value':
+        return 'Value';
+      default:
+        return cantHappen(source);
+    }
   }
 
   private async install(): Promise<void> {

@@ -72,9 +72,9 @@ app.on('ready', () =>
 
   if (process.platform === 'darwin') {
     const template = [{
-      label: 'Duffle Bag',
+      label: 'CNAB Installer',
       submenu: [{
-        label: 'About Duffle Bag',
+        label: 'About CNAB Installer',
         selector: 'orderFrontStandardAboutPanel:'
       }, {
         type: 'separator'
@@ -84,7 +84,7 @@ app.on('ready', () =>
       }, {
         type: 'separator'
       }, {
-        label: 'Hide Duffle Bag',
+        label: 'Hide CNAB Installer',
         accelerator: 'Command+H',
         selector: 'hide:'
       }, {

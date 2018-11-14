@@ -111,7 +111,7 @@ export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promi
       }
       return { succeeded: true, result: { verified: false, signer: '', reason: sr.stderr.trim() } };
     }
-    return await invokeObjFromSR(sh, 'sig verify', `${bundleFilePath}`, {}, parse);
+    return await invokeObjFromSR(sh, 'bundle verify', `-f ${bundleFilePath}`, {}, parse);
 }
 
 function paramsArgs(parameters: { [key: string]: string }): string {

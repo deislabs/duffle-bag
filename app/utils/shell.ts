@@ -88,8 +88,10 @@ function execOpts(): any {
     if (isWindows()) {
         env = Object.assign({}, env, { HOME: home() });
     }
+    if (isUnix()) {
+        env = extendBinPath(env);
+    }
     const opts = {
-        // cwd: vscode.workspace.rootPath,
         env: env,
         async: true
     };
@@ -142,39 +144,32 @@ function unquotedPath(path: string): string {
     return path;
 }
 
-// export function shellEnvironment(baseEnvironment: any): any {
-//     const env = Object.assign({}, baseEnvironment);
-//     const pathVariable = pathVariableName(env);
-//     for (const tool of ['duffle']) {
-//         const toolPath = config.toolPath(tool);
-//         if (toolPath) {
-//             const toolDirectory = path.dirname(toolPath);
-//             const currentPath = env[pathVariable];
-//             env[pathVariable] = toolDirectory + (currentPath ? `${pathEntrySeparator()}${currentPath}` : '');
-//         }
-//     }
+const EXTRA_BIN_DIRECTORY = '/usr/local/bin';
 
-//     // const kubeconfig = getActiveKubeconfig();
-//     // if (kubeconfig) {
-//     //     env['KUBECONFIG'] = kubeconfig;
-//     // }
-//     return env;
-// }
+export function extendBinPath(baseEnvironment: any): any {
+    const env = Object.assign({}, baseEnvironment);
+    const pathVariable = pathVariableName(env);
+    const currentPath = env[pathVariable];
+    if (!currentPath || currentPath.indexOf(EXTRA_BIN_DIRECTORY) < 0) {
+        env[pathVariable] = EXTRA_BIN_DIRECTORY + (currentPath ? `${pathEntrySeparator()}${currentPath}` : '');
+    }
+    return env;
+}
 
-// function pathVariableName(env: any): string {
-//     if (isWindows()) {
-//         for (const v of Object.keys(env)) {
-//             if (v.toLowerCase() === "path") {
-//                 return v;
-//             }
-//         }
-//     }
-//     return "PATH";
-// }
+function pathVariableName(env: any): string {
+    if (isWindows()) {
+        for (const v of Object.keys(env)) {
+            if (v.toLowerCase() === "path") {
+                return v;
+            }
+        }
+    }
+    return "PATH";
+}
 
-// function pathEntrySeparator() {
-//     return isWindows() ? ';' : ':';
-// }
+function pathEntrySeparator() {
+    return isWindows() ? ';' : ':';
+}
 
 export function safeValue(s: string): string {
     if (s.indexOf(' ') >= 0) {

@@ -71,6 +71,13 @@ export function list(sh: shell.Shell): Promise<Errorable<string[]>> {
     return invokeObj(sh, 'list', '', {}, parse);
 }
 
+export function claimExists(sh: shell.Shell, name: string): Promise<Errorable<boolean>> {
+  function parse(sr: shell.ShellResult): Errorable<boolean> {
+    return { succeeded: true, result: sr.code === 0 };
+  }
+  return invokeObjFromSR(sh, 'claim show', name, {}, parse);
+}
+
 export async function listRepos(sh: shell.Shell): Promise<Errorable<string[]>> {
     return { succeeded: true, result: ["hub.cnlabs.io"] };
 }

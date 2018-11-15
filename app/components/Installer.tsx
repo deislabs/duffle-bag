@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider } from 'semantic-ui-react';
+import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
-import { failed } from '../utils/errorable';
+import { failed, succeeded } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
 import { withOptionalTempFile } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
@@ -24,6 +24,7 @@ enum InstallProgress {
 
 interface State {
   installationName: string;
+  installationNameExists: boolean | undefined;
   parameterValues: { [key: string]: string };
   credentialValues: { [key: string]: CredentialSetEntry };
   installProgress: InstallProgress;
@@ -46,6 +47,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
     this.state = {
       installationName: embedded.bundle.name,
+      installationNameExists: undefined,
       parameterValues: ipvObj,
       credentialValues: icvObj,
       installProgress: InstallProgress.NotStarted,
@@ -59,8 +61,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.handleCredentialKindChange = this.handleCredentialKindChange.bind(this);
   }
 
-  private handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
+  async componentDidMount() {
+    await this.updateInstallationNameExists(this.state.installationName);
+  }
+
+  private async handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
     this.setState({ installationName: c.value });
+    await this.updateInstallationNameExists(c.value);
   }
 
   private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
@@ -106,6 +113,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.credentials && this.credentials.length > 0;
   }
 
+  private async updateInstallationNameExists(name: string) {
+    const exists = await duffle.claimExists(shell.shell, name);
+    if (succeeded(exists)) {
+      this.setState({ installationNameExists: exists.result });
+    }
+  }
+
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
       case InstallProgress.NotStarted:
@@ -125,7 +139,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         <Form>
           <Segment raised>
             <Header sub>Install as</Header>
-            <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} onChange={this.handleNameChange} />
+            <Form.Group inline>
+              <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
+              {...this.installationNameValidityPanel()}
+            </Form.Group>
           </Segment>
           <Segment raised>
             <Header sub>Installation parameters</Header>
@@ -143,6 +160,16 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         </Form>
       </Container>
     );
+  }
+
+  private installationNameValidityPanel(): JSX.Element[] {
+    if (this.state.installationNameExists === undefined) {
+      return [(<Message info>Checking installation name...</Message>)];
+    }
+    if (this.state.installationNameExists === true) {
+      return [(<Message>Name in use</Message>)];  // TODO: for some reason the 'error' option causes it not to show...
+    }
+    return [];
   }
 
   private parametersUI(): JSX.Element[] {

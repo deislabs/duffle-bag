@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Header, Message, Segment } from 'semantic-ui-react';
+import { Button, Container, Header, Message, Segment } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 
@@ -27,6 +27,7 @@ export default class Report extends React.Component<Properties, State, {}>  {
       <Container>
         <Segment raised>
           <Header as="h4">Installation {this.props.succeeded ? 'succeeded' : 'failed'}</Header>
+          {this.tryAgainButton()}
         </Segment>
         <Segment raised>
           {this.outputPanel()}
@@ -35,6 +36,13 @@ export default class Report extends React.Component<Properties, State, {}>  {
         {this.postInstallPanel()}
       </Container>
     );
+  }
+
+  tryAgainButton(): JSX.Element | undefined {
+    if (this.props.succeeded) {
+      return undefined;
+    }
+    return (<Button primary onClick={() => this.tryAgain()}>Try Again</Button>);
   }
 
   outputPanel(): JSX.Element | undefined  {
@@ -61,6 +69,11 @@ export default class Report extends React.Component<Properties, State, {}>  {
       );
     }
     return undefined;
+  }
+
+  private tryAgain(): void {
+    // TODO: save parameters and credentials
+    this.props.parent.setState({ action: 'install' });
   }
 }
 

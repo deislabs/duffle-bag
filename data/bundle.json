@@ -12,7 +12,15 @@
   "parameters": {
     "port": {
       "defaultValue": 8080,
-      "type": "int"
+      "type": "int",
+      "minValue": 1000,
+      "maxValue": 9999
+    },
+    "region": {
+      "defaultValue": "Wimbledon Common",
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 20
     },
     "somebool": {
       "type": "bool"

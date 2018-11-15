@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider } from 'semantic-ui-react';
+import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
-import { failed } from '../utils/errorable';
+import { failed, succeeded } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
 import { withOptionalTempFile } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
+import { project } from '../utils/projection';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -22,9 +23,48 @@ enum InstallProgress {
   Failed
 }
 
+interface Validity {
+  readonly isValid: boolean;
+  readonly reason: string;
+}
+
+class ParameterValue {
+  constructor(readonly definition: ParameterDefinition, readonly text: string) {}
+
+  get validity(): Validity {
+    // TODO: embetter
+    if (this.definition.type === 'int') {
+      const nval = Number.parseInt(this.text);  // TODO: this lets through text that *begins* with any digit
+      if (isNaN(nval)) {
+        return { isValid: false, reason: 'Must be a number' };
+      }
+      if (this.definition.minValue !== undefined && nval < this.definition.minValue) {
+        return { isValid: false, reason: `Must be at least ${this.definition.minValue}` };
+      }
+      if (this.definition.maxValue !== undefined && nval > this.definition.maxValue) {
+        return { isValid: false, reason: `Must be at most ${this.definition.maxValue}` };
+      }
+    }
+    if (this.definition.type === 'string') {
+      const length = this.text.length;
+      if (length === undefined) {
+        return { isValid: false, reason: 'Must be a string' };
+      }
+      if (this.definition.minLength !== undefined && length < this.definition.minLength) {
+        return { isValid: false, reason: `Must be at least ${this.definition.minLength} characters` };
+      }
+      if (this.definition.maxLength !== undefined && length > this.definition.maxLength) {
+        return { isValid: false, reason: `Must be at most ${this.definition.maxLength} characters` };
+      }
+    }
+    return { isValid: true, reason: '' };
+  }
+}
+
 interface State {
   installationName: string;
-  parameterValues: { [key: string]: string };
+  installationNameExists: boolean | undefined;
+  parameterValues: { [key: string]: ParameterValue };
   credentialValues: { [key: string]: CredentialSetEntry };
   installProgress: InstallProgress;
   installResult: string;
@@ -40,12 +80,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.parameterDefinitions = parseParameters(embedded.bundle);
     this.credentials = parseCredentials(embedded.bundle);
 
-    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: (pd.defaultValue || '').toString() }));
-    const ipvObj: { [key: string]: string } = Object.assign({}, ...initialParameterValues);
+    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd, (pd.defaultValue || '').toString()) }));
+    const ipvObj: { [key: string]: ParameterValue } = Object.assign({}, ...initialParameterValues);
     const initialCredentialValues = this.credentials.map((c) => this.initialCredential(c));
     const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
     this.state = {
       installationName: embedded.bundle.name,
+      installationNameExists: undefined,
       parameterValues: ipvObj,
       credentialValues: icvObj,
       installProgress: InstallProgress.NotStarted,
@@ -59,17 +100,26 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.handleCredentialKindChange = this.handleCredentialKindChange.bind(this);
   }
 
-  private handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
+  async componentDidMount() {
+    await this.updateInstallationNameExists(this.state.installationName);
+  }
+
+  private async handleNameChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
     this.setState({ installationName: c.value });
+    await this.updateInstallationNameExists(c.value);
   }
 
   private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
-    const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: c.value });
+    const definition = this.state.parameterValues[c.name].definition;
+    const newValue = new ParameterValue(definition, c.value);
+    const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
 
   private handleSelectChange(e: any, c: DropdownProps/* & {name: keyof State}*/) {
-    const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: c.value });
+    const definition = this.state.parameterValues[c.name].definition;
+    const newValue = new ParameterValue(definition, c.value as string);
+    const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
 
@@ -106,6 +156,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.credentials && this.credentials.length > 0;
   }
 
+  private async updateInstallationNameExists(name: string) {
+    const exists = await duffle.claimExists(shell.shell, name);
+    if (succeeded(exists)) {
+      this.setState({ installationNameExists: exists.result });
+    }
+  }
+
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
       case InstallProgress.NotStarted:
@@ -125,7 +182,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         <Form>
           <Segment raised>
             <Header sub>Install as</Header>
-            <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} onChange={this.handleNameChange} />
+            <Form.Group inline>
+              <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
+              {...this.installationNameValidityPanel()}
+            </Form.Group>
           </Segment>
           <Segment raised>
             <Header sub>Installation parameters</Header>
@@ -143,6 +203,16 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         </Form>
       </Container>
     );
+  }
+
+  private installationNameValidityPanel(): JSX.Element[] {
+    if (this.state.installationNameExists === undefined) {
+      return [(<Message info>Checking installation name...</Message>)];
+    }
+    if (this.state.installationNameExists === true) {
+      return [(<Message>Name in use</Message>)];  // TODO: for some reason the 'error' option causes it not to show... ETA: it's because error blocks are shown only when the *form* is in an error state
+    }
+    return [];
   }
 
   private parametersUI(): JSX.Element[] {
@@ -163,17 +233,24 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
-    return (<Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name]} onChange={this.handleInputChange} />);
+    const validationMessage = this.state.parameterValues[pd.name].validity.isValid ?
+      undefined :
+      (<Message>{this.state.parameterValues[pd.name].validity.reason}</Message>);
+    return (
+      <Form.Group inline>
+        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name].text} error={!this.state.parameterValues[pd.name].validity.isValid} onChange={this.handleInputChange} />
+        {validationMessage}
+      </Form.Group>);
   }
 
   private selectInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
+    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
 
   private boolInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name]} onChange={this.handleSelectChange} />);
+    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
 
   private credentialsUI(): JSX.Element[] {
@@ -215,7 +292,8 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
       return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
         const name = this.state.installationName;
-        return await duffle.installFile(shell.shell, bundleTempFile, name, this.state.parameterValues, credsTempFile);
+        const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
+        return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
       });
     });
     // TODO: would prefer to install the signed bundle if present.  But this introduces

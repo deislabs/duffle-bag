@@ -39,16 +39,27 @@ export default class Report extends React.Component<Properties, State, {}>  {
 
   outputPanel(): JSX.Element | undefined  {
     if (this.props.output) {
-      return (<Message info>{this.props.output}</Message>);
+      return (<Message info>{...this.asHTMLLines(this.props.output)}</Message>);
     }
     return undefined;
   }
 
   errorPanel(): JSX.Element | undefined  {
     if (this.props.error) {
-      return (<Message error>{this.props.error}</Message>);
+      return (<Message error>{...this.asHTMLLines(this.props.error)}</Message>);
     }
     return undefined;
+  }
+
+  asHTMLLines(text: string): JSX.Element[] {
+    return text
+      .split('\n')
+      .map((l) => l.trim())
+      .map((l) => this.asHTMLLine(l));
+  }
+
+  asHTMLLine(text: string): JSX.Element {
+    return (<p>{text}</p>);
   }
 
   postInstallPanel(): JSX.Element | undefined {

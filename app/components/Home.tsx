@@ -16,8 +16,8 @@ export default class Home extends React.Component<{}, Actionable, {}> {
   }
   render() {
     return (
-      <Container style={{ marginTop: '3em' }}>
-        <Segment raised>
+      <Container>
+        <Segment>
           <Header as="h2">{bundle.name}</Header>
         </Segment>
         {this.body()}

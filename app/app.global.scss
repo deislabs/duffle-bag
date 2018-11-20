@@ -166,6 +166,7 @@ body {
   font-family: $work;
   color: $navy;
   position: relative;
+  background: linear-gradient(r(255, 255, 255), rgb(251, 251, 251) );
 }
 
 
@@ -236,18 +237,38 @@ body {
 
 
 // CNAB Content
+
+h1, h2, h3, h4, h5, h6,
+strong {
+  &.ui.header {
+    font-family: $workbold;
+    color: $navy;
+  }
+}
+
+h3.ui.header {
+  font-size: $base-lg;
+  opacity: 0.825;
+  margin-top: 1.75rem;
+}
+
+p {
+  padding-right: 12.5%;
+  line-height: 1.75;
+}
+
 .ui.button {
   box-sizing: border-box;
   font-family: $workbold;
   font-size: $base-font;
   font-weight: 600;
   color: $navy;
-  margin: 2rem auto;
-  padding: 0.75rem 2rem;
+  margin: 0;
+  padding: 0 2rem;
+  line-height: 2.5;
   border: 3px solid $navy;
   z-index: 600;
   background: transparent !important;
-  @include wipe($green);
 
   &.primary {
     background: transparent !important;
@@ -255,17 +276,127 @@ body {
     border: 4px solid $navy;
     @include wipe($green);
   }
+
+  &.secondary {
+    color: $navy;
+    @include ripple;
+
+    &:hover {
+      color: $navy;
+    }
+  }
 }
 
 
 // Header
 h2.ui.header {
-  margin: 2rem 0;
+  margin: 0 0 2rem;
+  padding: 1rem 0;
+  color: $navy;
+  font-family: $workbold;
+  font-size: $base-xxlg;
+  position: relative;
+  line-height: 1.825;
+
+  &:last-child {
+    margin-bottom: 2rem;
+  }
+
+  &::after {
+    width: 200%;
+    height: 2px;
+    left: -10%;
+    position: absolute;
+    background-color: rgba(30,30,30,0.1);
+    content: " ";
+    display: inline-block;
+    z-index: 1020;
+    bottom: 1rem;
+  }
+}
+
+.ui.message {
+  border: none;
+  background-color: transparent;
+  font-size: $base-font;
+  font-family: $work;
+  box-shadow: none;
   padding: 0;
+  line-height: 1.75;
+  margin: 0 auto;
+
+  &.succeeded,
+  &.verified {
+    color: darken($green, 12.5%);
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  &.error,
+  &.unsigned {
+    color: darken($red, 12.5%);
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  &.info,
+  &.output {
+    color: $navy;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  
+}
+
+// homepage main action panels
+.ui.cards {
+  color: $navy;
+
+  .ui.card {
+    width: 30.333%;
+    margin: 2rem 1.5%;
+    border: 2px solid $navy;
+    border-radius: 0;
+    box-shadow: none;
+
+    &:hover  {
+      // border: 2px solid $navy;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    
+    // ape disabled state
+    &:first-child {
+      border-color: $navy;
+
+      &:hover {
+        border: 2px solid $navy;
+      }
+    }
+    &:nth-child(2),
+    &:last-child {
+      opacity: 0.7;
+      cursor: not-allowed;
+      border-color: $bluel;
+
+      &:hover {
+        border: 2px solid $bluel;        
+      }
+    }
+    // [href^="http:"] {
+    //   border-color: $navy;
+    //   &:not {}
+    // }
+
+  }
 }
 
 // button bar at the bottom
-.steps {
+.ui.steps {
   background-color: $yellowl;
   border: none;
   position: fixed;
@@ -275,28 +406,112 @@ h2.ui.header {
   width: 100%;
   padding: 0.5rem 0;
   min-height: 7rem;
+  border-radius: 0;
+  margin: 0;
 
   .ui.button {
     float: right;
-    min-width: 6rem;
-    margin: 0.5rem 0;
-    height: 3rem;
+    min-height: 4rem;
     position: absolute;
+    top: 1.5rem;
+    padding: 0;
     font-size: $base-font;
 
     &.secondary {
-      left: 2rem;
-      color: $navy;
       border: none;
-      width: 15rem;
-      margin: 2rem auto;
-      padding: 0.75rem 2rem;
+      left: 1.75rem;
+      padding: 0 1rem;
     }
 
     &.primary {
-      right: 2rem;
+      right: 1.75rem;
+      padding: 0 3.5rem;
     }
   }
 
+  .ui.message {
+    border: none;
+    background-color: transparent;
+    font-size: $base-sm;
+    text-align: center;
+    box-shadow: none;
+    padding: 0;
+    line-height: 3;
+    margin: 0 auto;
 
+    &.error {
+      color: darken($red, 12.5%);
+    }
+  }
+}
+
+form.ui.form {
+
+  .segment {
+    margin: 0 0 2rem;
+  }
+  
+  .sub.header {
+    font-family: $workbold;
+    font-size: $base-sm;
+    opacity: 0.67;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.035em;
+  }
+
+  .ui.message {
+    width: 50%;
+    margin-left: 33.33%;
+    text-align: left;
+    float: right;
+    font-size: $base-sm;
+  }
+  
+  .inline.field,
+  .inline.fields, {
+    width: 100%;
+
+    & > label {
+      min-width: 33.33%;
+      font-family: $work !important;
+      font-weight: 400;
+      font-size: $base-font !important;
+      line-height: 2.5;
+      border-radius: 0;
+      vertical-align: middle !important;
+      color: $navy !important;
+    }
+
+    input,
+    select,
+    textarea {
+      color: $navy;
+      font-family: $workbold;
+      font-weight: 600;
+      border: none;
+      border-radius: 0;
+      border-bottom: 2px solid $bluel;
+      background-color: lighten($yellowl, 10%);
+      font-size: $base-font;
+      padding: 0 0.825rem;
+      line-height: 2.5;
+      min-width: 50%;
+      @include transition;
+      
+      &:active,
+      &:focus,
+      &:hover {
+        border-bottom: 2px solid $navy;
+        border-radius: 0;
+        background: lighten($bluel, 7.5%);
+      }
+
+      &:active,
+      &:focus {
+        background: desaturate(lighten($bluel, 7.5%), 10%);
+        border-bottom: 2px solid darken($green, 10%);
+        color: darken($green, 10%);
+      }
+    }
+  }
 }

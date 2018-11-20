@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Card, Header, Message, Segment } from 'semantic-ui-react';
+import { Container, Card, Header, Message, Step, Segment } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
@@ -99,7 +99,12 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
 
         </Card.Group>
 
-        {this.dufflePanel()}
+        <Segment>
+          <Step.Group>
+            {this.dufflePanel()}
+          </Step.Group>
+        </Segment>
+
       </Container>
     );
   }

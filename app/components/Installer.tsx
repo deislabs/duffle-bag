@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Form, Header, Button, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
+import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -184,6 +184,8 @@ export default class Installer extends React.Component<Properties, State, {}>  {
             <Header sub>Install as</Header>
             <Form.Group inline>
               <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
+            </Form.Group>
+            <Form.Group inline>
               {...this.installationNameValidityPanel()}
             </Form.Group>
           </Segment>
@@ -197,7 +199,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           </Segment>
           <Segment>
             <Step.Group>
-              <Button secondary left onClick={() => this.state == null }> Back </Button>
+              <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
               <Button primary right onClick={() => this.install()}>
                 Install
               </Button>
@@ -263,6 +265,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       return [ (<Label>This bundle does not require any credentials</Label>) ];
     }
     return this.credentials.map((c) => this.credentialWidget(c));
+  }
+
+  private goBack(): void {
+    this.props.parent.setState({ action: 'install' });
   }
 
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];

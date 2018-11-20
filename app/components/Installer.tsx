@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
+import { Container, Form, Header, Button, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -195,10 +195,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
             <Header sub>Credentials</Header>
             {this.credentialsUI()}
           </Segment>
-          <Segment footer>
-            <div><a onClick={() => this.install()}>
-              Install
-            </a></div>
+          <Segment>
+            <Step.Group>
+              <Button secondary left onClick={() => this.state == null }> Back </Button>
+              <Button primary right onClick={() => this.install()}>
+                Install
+              </Button>
+            </Step.Group>
             <Divider />
             {this.progress()}
           </Segment>

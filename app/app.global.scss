@@ -7,7 +7,7 @@ $icons-font-path: '~semantic-ui-sass/icons' !default;
 
 // Font: Work Sans
 @font-face {
-  font-family: 'work_sansregular';
+  font-family: 'workreg';
   src: url('~font-work-sans/fonts/Regular/worksans-regular.eot');
   src: url('~font-work-sans/fonts/Regular/worksans-regular.eot?#iefix') format("embedded-opentype"),
        url('~font-work-sans/fonts/Regular/worksans-regular.woff') format('woff'),
@@ -17,14 +17,15 @@ $icons-font-path: '~semantic-ui-sass/icons' !default;
   font-weight: 400;
 }
 @font-face {
-  font-family: 'work_sanssemibold';
+  font-family: 'workbold';
   src: url('~font-work-sans/fonts/SemiBold/worksans-semibold.woff2') format('woff2'),
        url('~font-work-sans/fonts/SemiBold/worksans-semibold.woff') format('woff');
   font-weight: normal;
   font-style: 600;
   letter-spacing: 0.35rem;
 }
-$work: 'Work Sans', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
+$work: 'workreg', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
+$workbold: 'workbold', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
 $font-family: $work;
 
 
@@ -200,6 +201,7 @@ body {
 // CNAB Base Layout 
 #root {
   position: relative;
+  padding-bottom: 8.5rem;
 }
 
 .ui.container {
@@ -214,10 +216,12 @@ body {
   padding: 0;
   margin: 0;
   box-shadow: none;
-}
+  border: none;
 
-.ui.raised {
-  box-shadow: none;
+  &.raised {
+    border: none;
+    box-shadow: none;
+  }
 }
 
 .ui.header {
@@ -232,29 +236,67 @@ body {
 
 
 // CNAB Content
-.button {
+.ui.button {
   box-sizing: border-box;
-  font-size: $base-lg;
+  font-family: $workbold;
+  font-size: $base-font;
   font-weight: 600;
   color: $navy;
-  width: 15rem;
-  height: 4.5rem;
   margin: 2rem auto;
   padding: 0.75rem 2rem;
-  border: 4px solid $navy;
+  border: 3px solid $navy;
   z-index: 600;
   background: transparent !important;
   @include wipe($green);
 
-  &:hover {
-    border: 5px solid $navy;
+  &.primary {
+    background: transparent !important;
+    color: $navy;
+    border: 4px solid $navy;
+    @include wipe($green);
   }
 }
 
 
 // Header
-.ui.header {
-  h2 {
-    margin: 2rem;
+h2.ui.header {
+  margin: 2rem 0;
+  padding: 0;
+}
+
+// button bar at the bottom
+.steps {
+  background-color: $yellowl;
+  border: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 0.5rem 0;
+  min-height: 7rem;
+
+  .ui.button {
+    float: right;
+    min-width: 6rem;
+    margin: 0.5rem 0;
+    height: 3rem;
+    position: absolute;
+    font-size: $base-font;
+
+    &.secondary {
+      left: 2rem;
+      color: $navy;
+      border: none;
+      width: 15rem;
+      margin: 2rem auto;
+      padding: 0.75rem 2rem;
+    }
+
+    &.primary {
+      right: 2rem;
+    }
   }
+
+
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Button, Grid, Header, Message, Segment } from 'semantic-ui-react';
+import { Container, Card, Header, Message, Segment } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
@@ -65,19 +65,40 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
           {descPanel.location === 'header' ? descPanel.content : ''}
         </Segment>
         {descPanel.location === 'segment' ? descPanel.content : ''}
-        <Grid centered columns={3}>
-          <Grid.Row>
-            <Grid.Column>
-              <Button primary onClick={() => this.install()}>Install</Button>
-            </Grid.Column>
-            <Grid.Column>
-              <Button disabled>Upgrade</Button>
-            </Grid.Column>
-            <Grid.Column>
-              <Button disabled>Uninstall</Button>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+
+        <Card.Group>
+          <Card onClick={() => this.install()}>
+            <Card.Content>
+              <Card.Header>Install</Card.Header>
+              <Card.Meta>Friends of Elliot</Card.Meta>
+              <Card.Description>
+                Steve wants to add you to the group <strong>best friends</strong>
+              </Card.Description>
+            </Card.Content>
+          </Card>
+
+          <Card>
+            <Card.Content>
+              <Card.Header>Upgrade</Card.Header>
+              <Card.Meta>Friends of Elliot</Card.Meta>
+              <Card.Description>
+                Steve wants to add you to the group <strong>best friends</strong>
+              </Card.Description>
+            </Card.Content>
+          </Card>
+
+          <Card>
+            <Card.Content>
+              <Card.Header>Uninstall</Card.Header>
+              <Card.Meta>Friends of Elliot</Card.Meta>
+              <Card.Description>
+                Steve wants to add you to the group <strong>best friends</strong>
+              </Card.Description>
+            </Card.Content>
+          </Card>
+
+        </Card.Group>
+
         {this.dufflePanel()}
       </Container>
     );

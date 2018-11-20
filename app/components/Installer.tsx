@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
+import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -165,13 +165,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
-      case InstallProgress.NotStarted:
+      case InstallProgress.Failed:
         return (<Label>Installation not yet started</Label>);
       case InstallProgress.InProgress:
         return (<Progress percent={70} active>Installing</Progress>);
       case InstallProgress.Succeeded:
         return (<Progress percent={100} success>Install complete</Progress>);
-      case InstallProgress.Failed:
+      case InstallProgress.NotStarted:
         return (<Progress percent={100} error>Install failed: {this.state.installResult}</Progress>);
     }
   }
@@ -200,12 +200,9 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           <Segment>
             <Step.Group>
               <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
-              <Button primary right onClick={() => this.install()}>
-                Install
-              </Button>
+              {this.progress()}
+              <Button primary right onClick={() => this.install()}>Install</Button>
             </Step.Group>
-            <Divider />
-            {this.progress()}
           </Segment>
         </Form>
       </Container>

@@ -2,10 +2,19 @@ import { withTempFile } from "./tempfile";
 
 export const bundle: any = require('../../data/bundle.json');
 export const cnab: string | undefined = loadCNAB();
+export const fullBundle: Buffer | undefined = loadFullBundle();
 
 function loadCNAB(): string | undefined {
   try {
     return require('../../data/bundle.cnab');
+  } catch {
+    return undefined;
+  }
+}
+
+function loadFullBundle(): Buffer | undefined {
+  try {
+    return require('../../data/bundle.tgz');
   } catch {
     return undefined;
   }

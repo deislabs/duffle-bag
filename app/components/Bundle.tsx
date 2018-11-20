@@ -16,6 +16,7 @@ interface Properties {
 interface State {
   duffle: 'pending' | BinaryInfo | undefined;
   signingStatus: VerificationUI;
+  hasFullBundle: boolean;
 }
 
 const VERIFICATION_FAILED_PREFIX = 'Error: verification failed: ';
@@ -35,7 +36,7 @@ interface VerificationUI {
 export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
-    this.state = { duffle: 'pending', signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' } };
+    this.state = { duffle: 'pending', signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' }, hasFullBundle: !!embedded.fullBundle };
   }
 
   async componentDidMount() {
@@ -61,6 +62,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
       <Container>
         <Segment raised>
           <Header sub>Version {embedded.bundle.version}</Header>
+          {this.thicknessPanel()}
           {this.signaturePanel()}
           {descPanel.location === 'header' ? descPanel.content : ''}
         </Segment>
@@ -126,6 +128,13 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
       default:
         return (<Header sub>{text}</Header>);
     }
+  }
+
+  private thicknessPanel(): JSX.Element {
+    if (this.state.hasFullBundle) {
+      return (<Header sub>This installer contains all required images and can be run offline</Header>);
+    }
+    return (<Header sub>This installer will download any required images from the network</Header>);
   }
 
   private dufflePanel(): JSX.Element {

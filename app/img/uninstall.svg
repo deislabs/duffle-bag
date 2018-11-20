@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="126px" height="148px" viewBox="0 0 126 148" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Uninstall</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Uninstall" fill-rule="nonzero">
+            <rect id="Rectangle" fill="#FFF3E6" x="25" y="31" width="76" height="57"></rect>
+            <rect id="Rectangle" fill="#3731AA" x="15" y="16" width="29" height="29"></rect>
+            <polygon id="Path-5" fill="#CCFF66" transform="translate(96.500000, 50.500000) scale(-1, 1) translate(-96.500000, -50.500000) " points="114 16 79 85 79 16"></polygon>
+            <circle id="Oval-2" fill="#2EC4B6" cx="87" cy="56" r="16"></circle>
+            <rect id="Rectangle-3" fill="#D3DDF7" x="45" y="100" width="8" height="48"></rect>
+            <rect id="Rectangle-3" fill="#E83683" x="59" y="90" width="8" height="58"></rect>
+            <rect id="Rectangle-3" fill="#D3DDF7" x="73" y="100" width="8" height="48"></rect>
+            <path d="M63,45.8262379 L40.663119,90.5 L85.336881,90.5 L63,45.8262379 Z" id="Triangle" stroke="#E83683" stroke-width="7" fill="#FFFFFF"></path>
+            <g id="corner" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(20.500000, 2.928571) rotate(-90.000000) translate(-20.500000, -2.928571) " x="17.5714286" y="-17.5714286" width="5.85714286" height="41"></rect>
+            </g>
+            <g id="corner" transform="translate(108.500000, 126.500000) scale(-1, -1) translate(-108.500000, -126.500000) translate(91.000000, 106.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(17.500000, 2.928571) rotate(-90.000000) translate(-17.500000, -2.928571) " x="14.5714284" y="-14.5714286" width="5.857143" height="35"></rect>
+            </g>
+            <g id="corner" transform="translate(17.500000, 126.500000) scale(1, -1) translate(-17.500000, -126.500000) translate(0.000000, 106.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(17.500000, 2.928571) rotate(-90.000000) translate(-17.500000, -2.928571) " x="14.5714286" y="-14.5714286" width="5.857143" height="35"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

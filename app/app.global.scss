@@ -166,37 +166,8 @@ body {
   font-family: $work;
   color: $navy;
   position: relative;
-  background: linear-gradient(r(255, 255, 255), rgb(251, 251, 251) );
+  background: linear-gradient(rgb(255, 255, 255), rgba(220, 221, 221, 0.5) );
 }
-
-
-// h2 {
-//   margin: 0;
-//   font-size: 2.25rem;
-//   font-weight: bold;
-//   letter-spacing: -0.025em;
-//   color: #fff;
-// }
-
-// p {
-//   font-size: 24px;
-// }
-
-// li {
-//   list-style: none;
-// }
-
-// a {
-//   color: white;
-//   opacity: 0.75;
-//   text-decoration: none;
-// }
-
-// a:hover {
-//   opacity: 1;
-//   text-decoration: none;
-//   cursor: pointer;
-// }
 
 
 // CNAB Base Layout 
@@ -348,25 +319,70 @@ h2.ui.header {
     box-shadow: none;
     background-color: transparent;
   }
-
-  
 }
+
 
 // homepage main action panels
 .ui.cards {
   color: $navy;
+  padding-top: 3.5rem;
 
   .ui.card {
     width: 30.333%;
     margin: 2rem 1.5%;
-    border: 2px solid $navy;
+    border: 3px solid $navy;
     border-radius: 0;
     box-shadow: none;
+    background: white;
+    position: relative;
 
-    &:hover  {
-      // border: 2px solid $navy;
+    &:before {
+      width: 10%;
+      height: 7px;
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      z-index: 1020;
+      background: $green;
+      @include transition;
+    }
+
+    img.ui.image {
+      max-width: 4rem;
+      float: left;
+      margin: 0.5rem 2rem 1.25rem 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .header {
+      color: $navy;
+      font-weight: $workbold;
+      margin-top: 0.825rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+
+    .meta {
+      font-size: 1rem;
+    }
+
+    .description {
+      font-size: $base-sm;
+      line-height: 1.5;
+    }
+
+    &:hover {
       border-radius: 0;
       box-shadow: none;
+
+      &:before {
+        width: 100%;
+        opacity: 1;
+        background-color: $green;
+      }
     }
     
     // ape disabled state
@@ -374,17 +390,27 @@ h2.ui.header {
       border-color: $navy;
 
       &:hover {
-        border: 2px solid $navy;
+        border: 3px solid $navy;
       }
     }
+    
     &:nth-child(2),
     &:last-child {
-      opacity: 0.7;
       cursor: not-allowed;
       border-color: $bluel;
-
+      
+      .header,
+      .meta,
+      .description {
+        opacity: 0.7;
+      }
+      
       &:hover {
-        border: 2px solid $bluel;        
+        border: 3px solid $bluel;
+        
+        &:before {
+          background: transparent;
+        }
       }
     }
     // [href^="http:"] {

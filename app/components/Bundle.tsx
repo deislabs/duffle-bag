@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Card, Header, Message, Step, Segment } from 'semantic-ui-react';
+import { Container, Card, Header, Message, Step, Segment, Image } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
@@ -69,30 +69,33 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
         <Card.Group>
           <Card onClick={() => this.install()}>
             <Card.Content>
+            <Image src='img/install.svg' />
               <Card.Header>Install</Card.Header>
-              <Card.Meta>Friends of Elliot</Card.Meta>
+              <Card.Meta>{embedded.bundle.version}</Card.Meta>
               <Card.Description>
-                Steve wants to add you to the group <strong>best friends</strong>
+                Run the bundle install steps, as defined by the bundle author.
               </Card.Description>
             </Card.Content>
           </Card>
 
           <Card>
             <Card.Content>
-              <Card.Header>Upgrade</Card.Header>
-              <Card.Meta>Friends of Elliot</Card.Meta>
+            <Image src='img/upgrade.svg' />
+            <Card.Header>Upgrade</Card.Header>
+              <Card.Meta>No install detected.</Card.Meta>
               <Card.Description>
-                Steve wants to add you to the group <strong>best friends</strong>
+                Run upgrade steps on an active bundle.
               </Card.Description>
             </Card.Content>
           </Card>
 
           <Card>
             <Card.Content>
-              <Card.Header>Uninstall</Card.Header>
-              <Card.Meta>Friends of Elliot</Card.Meta>
+            <Image src='img/uninstall.svg' />
+            <Card.Header>Uninstall</Card.Header>
+              <Card.Meta>No install detected.</Card.Meta>
               <Card.Description>
-                Steve wants to add you to the group <strong>best friends</strong>
+              Run the uninstall steps, as defined by the bundle author.
               </Card.Description>
             </Card.Content>
           </Card>

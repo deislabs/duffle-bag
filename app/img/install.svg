@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="133px" height="145px" viewBox="0 0 133 145" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Install</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Install" transform="translate(0.000000, -5.000000)" fill-rule="nonzero">
+            <rect id="Rectangle" fill="#FFF3E6" x="6" y="92" width="58" height="58"></rect>
+            <rect id="Rectangle" fill="#D3DDF7" x="64" y="97" width="37" height="37"></rect>
+            <rect id="Rectangle" fill="#2EC4B6" x="70" y="21" width="46" height="47"></rect>
+            <polyline id="Path-3" stroke="#3731AA" stroke-width="6" points="4.0546875 9.83302028 65.5068297 71.2851625 129.054688 7.73730469"></polyline>
+            <polygon id="Path-5" fill="#CCFF66" points="44 24 18 75 18 24"></polygon>
+            <circle id="Oval-2" fill="#E83683" cx="66" cy="94" r="29"></circle>
+            <g id="corner" transform="translate(0.000000, 5.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(20.500000, 2.928571) rotate(-90.000000) translate(-20.500000, -2.928571) " x="17.5714286" y="-17.5714286" width="5.85714286" height="41"></rect>
+            </g>
+            <g id="corner" transform="translate(112.500000, 25.500000) scale(-1, 1) translate(-112.500000, -25.500000) translate(92.000000, 5.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(20.500000, 2.928571) rotate(-90.000000) translate(-20.500000, -2.928571) " x="17.5714286" y="-17.5714286" width="5.85714286" height="41"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

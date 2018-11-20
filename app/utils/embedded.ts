@@ -31,10 +31,10 @@ export function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: boolean
   return withTempFile(bundleText, ext, (path) => fn(path, signed));
 }
 
-export async function withFullBundle<T>(fn: (bundleFilePath: string) => Promise<T>): Promise<T | undefined> {
+export async function withFullBundle<T>(fn: (bundleFilePath: string | undefined) => Promise<T>): Promise<T> {
   const fullBundle = await fullBundlePromise;
   if (!fullBundle) {
-    return undefined;
+    return fn(undefined);
   }
   return withBinaryTempFile(fullBundle as any, 'tgz', (path) => fn(path));
 }

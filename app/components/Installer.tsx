@@ -298,10 +298,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.setState({ installProgress: InstallProgress.InProgress });
     const credsYAML = this.hasCredentials ? credentialsYAML('temp', this.state.credentialValues) : undefined;
     const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
-      return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
-        const name = this.state.installationName;
-        const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
-        return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
+      return await embedded.withFullBundle(async (fullBundleFile) => {
+        await duffle.import(fullBundleFile);
+        return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+          const name = this.state.installationName;
+          const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
+          return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
+        });
       });
     });
     // TODO: would prefer to install the signed bundle if present.  But this introduces

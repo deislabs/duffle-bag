@@ -480,6 +480,14 @@ h2.ui.header {
     float: right;
     background-color: transparent;
 
+    .label {
+      top: 0;
+      width: auto;
+      right: 0;
+      left: auto;
+      color: $navy;
+    }
+
     .bar {
       margin-top: 0.425rem;
       height: 0.75rem;
@@ -498,14 +506,33 @@ h2.ui.header {
       }
     }
 
-    .label {
-      top: 0;
-      width: auto;
-      right: 0;
-      left: auto;
-      color: $navy;
+    &.success {
+      .label {
+        color: $green;
+      }
+      
+      .bar {
+        background-image: linear-gradient(
+          to right,
+          $yellowl,
+          $green
+        );
+      }
     }
 
+    &.error {
+      .label {
+        color: $red;
+      }
+      
+      .bar {
+        background-image: linear-gradient(
+          to right,
+          $yellowl,
+          $red
+        );
+      }
+    }
   }
 }
 

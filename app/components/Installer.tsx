@@ -165,14 +165,14 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
-      case InstallProgress.Failed:
+      case InstallProgress.NotStarted:
         return (<Label>Installation not yet started</Label>);
       case InstallProgress.InProgress:
         return (<Progress percent={70} active>Installing</Progress>);
       case InstallProgress.Succeeded:
-        return (<Progress percent={100} success>Install complete</Progress>);
-      case InstallProgress.NotStarted:
-        return (<Progress percent={100} error>Install failed: {this.state.installResult}</Progress>);
+        return (<Progress percent={85} success>Install complete</Progress>);
+      case InstallProgress.Failed:
+        return (<Progress percent={85} error>Install failed: {this.state.installResult}</Progress>);
     }
   }
 

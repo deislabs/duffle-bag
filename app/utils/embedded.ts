@@ -1,8 +1,10 @@
-import { withTempFile } from "./tempfile";
+import * as request from 'request-promise-native';
+
+import { withTempFile, withBinaryTempFile } from "./tempfile";
 
 export const bundle: any = require('../../data/bundle.json');
 export const cnab: string | undefined = loadCNAB();
-export const fullBundle: Buffer | undefined = loadFullBundle();
+export const fullBundlePromise: Promise<{} | undefined> = loadFullBundle();
 
 function loadCNAB(): string | undefined {
   try {
@@ -12,9 +14,11 @@ function loadCNAB(): string | undefined {
   }
 }
 
-function loadFullBundle(): Buffer | undefined {
+async function loadFullBundle(): Promise<{} | undefined> {
   try {
-    return require('../../data/bundle.tgz');
+    const bundleUrl = require('../../data/bundle.tgz');
+    const bundleContent = await request.get(bundleUrl, { encoding: null });
+    return bundleContent;
   } catch {
     return undefined;
   }
@@ -25,4 +29,12 @@ export function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: boolean
   const ext = signed ? 'cnab' : 'json';
   const bundleText = cnab || JSON.stringify(bundle, undefined, 2);
   return withTempFile(bundleText, ext, (path) => fn(path, signed));
+}
+
+export async function withFullBundle<T>(fn: (bundleFilePath: string) => Promise<T>): Promise<T | undefined> {
+  const fullBundle = await fullBundlePromise;
+  if (!fullBundle) {
+    return undefined;
+  }
+  return withBinaryTempFile(fullBundle as any, 'tgz', (path) => fn(path));
 }

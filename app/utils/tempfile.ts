@@ -27,3 +27,14 @@ export async function withTempFile<T>(content: string, fileType: string, fn: (fi
       tempFile.removeCallback();
   }
 }
+
+export async function withBinaryTempFile<T>(content: Buffer, fileType: string, fn: (filename: string) => Promise<T>): Promise<T> {
+  const tempFile = tmp.fileSync({ prefix: "dufflebag-", postfix: `.${fileType}` });
+  await fs.writeFile(tempFile.name, content);
+
+  try {
+      return await fn(tempFile.name);
+  } finally {
+      tempFile.removeCallback();
+  }
+}

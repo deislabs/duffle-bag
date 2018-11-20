@@ -6,6 +6,7 @@ import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from 
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable } from '../utils/errorable';
+import { fs } from '../utils/fs';
 
 const description = tryLoadDescription();
 
@@ -16,7 +17,7 @@ interface Properties {
 interface State {
   duffle: 'pending' | BinaryInfo | undefined;
   signingStatus: VerificationUI;
-  hasFullBundle: boolean;
+  hasFullBundle: boolean | undefined;
 }
 
 const VERIFICATION_FAILED_PREFIX = 'Error: verification failed: ';
@@ -36,7 +37,7 @@ interface VerificationUI {
 export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
-    this.state = { duffle: 'pending', signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' }, hasFullBundle: !!embedded.fullBundle };
+    this.state = { duffle: 'pending', signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' }, hasFullBundle: undefined };
   }
 
   async componentDidMount() {
@@ -54,6 +55,8 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     } else {
       this.setState({signingStatus: { display: SigningStatus.Error, text: 'Unable to check digital signature: Duffle binary not found' } });
     }
+    const fullBundle = await embedded.fullBundlePromise;
+    this.setState({ hasFullBundle: !!fullBundle });
   }
 
   render() {
@@ -131,6 +134,9 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   private thicknessPanel(): JSX.Element {
+    if (this.state.hasFullBundle === undefined) {
+      return (<Header sub>Checking bundle type...</Header>);
+    }
     if (this.state.hasFullBundle) {
       return (<Header sub>This installer contains all required images and can be run offline</Header>);
     }

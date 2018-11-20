@@ -103,7 +103,7 @@ module.exports = merge(baseConfig, {
       // Thick bundle
       {
         test: /\.tgz$/,
-        use: 'raw-loader',
+        use: 'file-loader',
       },
       // Description
       {

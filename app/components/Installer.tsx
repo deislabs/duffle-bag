@@ -277,6 +277,9 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
 
   private credentialWidget(credential: BundleCredential): JSX.Element {
+    // TODO: form items should have unique names - unfortunately the change handlers currently
+    // use the sender name to key into the credentials object so probably better to change them
+    // to use key or something instead
     const opts = this.credentialSourceKinds.map((v) => ({ text: this.credentialSourceKindText(v), value: v }));
     return (
       <Form.Group inline>

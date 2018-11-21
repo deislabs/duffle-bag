@@ -1,39 +1,673 @@
-@import "~@fortawesome/fontawesome-free/css/all.css";
+// CNAB Load Dependancies
+// ---------------------------------------
 
-body {
-  position: relative;
-  color: white;
-  height: 100vh;
-  background-color: #232c39;
-  background-image: linear-gradient(45deg, rgba(0, 216, 255, 0.5) 10%, rgba(0, 1, 127, 0.7));
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
-  overflow-y: hidden;
+// Framework: Semanic UI
+$icons-font-path: '~semantic-ui-sass/icons' !default;
+@import "~semantic-ui-sass/semantic-ui.scss";
+
+// Font: Work Sans
+@font-face {
+  font-family: 'workreg';
+  src: url('~font-work-sans/fonts/Regular/worksans-regular.eot');
+  src: url('~font-work-sans/fonts/Regular/worksans-regular.eot?#iefix') format("embedded-opentype"),
+       url('~font-work-sans/fonts/Regular/worksans-regular.woff') format('woff'),
+       url('~font-work-sans/fonts/Regular/worksans-regular.ttf') format('truetype'),
+       url('~font-work-sans/fonts/Regular/worksans-regular.svg') format('svg');
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'workbold';
+  src: url('~font-work-sans/fonts/SemiBold/worksans-semibold.woff2') format('woff2'),
+       url('~font-work-sans/fonts/SemiBold/worksans-semibold.woff') format('woff');
+  font-weight: normal;
+  font-style: 600;
+  letter-spacing: 0.35rem;
+}
+$work: 'workreg', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
+$workbold: 'workbold', 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;
+$font-family: $work;
+
+
+// CNAB Color palette
+// ---------------------------------------
+// core colors
+$navy:  #3731AA;
+$red: #E83683;
+$green: #2EC4B6;
+$yellow: #CCFF66;
+// accent colors
+$bluel: #D3DDF7;
+$yellowl: #FFF3E6;
+
+
+// CNAB Mixins
+// ---------------------------------------
+@mixin transition($property:all, $duration:0.3s, $easing:ease-in-out) {
+  transition: $property $duration $easing;
 }
 
-h2 {
+@mixin border-radius($radius1:3px, $radius2:3px) {
+  -webkit-border-radius: $radius1 $radius2 $radius1 $radius2;
+  -moz-border-radius: $radius1 $radius2 $radius1 $radius2;
+  border-radius: $radius1 $radius2 $radius1 $radius2;
+}
+
+@mixin box-shadow($xlength:0, $ylength:2px, $size:0, $color:rgba(30,30,30,0.25)) {
+  -webkit-box-shadow: $xlength $ylength $size $color;
+  -moz-box-shadow: $xlength $ylength $size $color;
+  box-shadow: $xlength $ylength $size $color;
+}
+
+@mixin vertical-align($position: relative) {
+  position: $position;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+@mixin corner($corner: 0.5rem, $cornertop: -1rem, $cornerleft: -1rem, $cornerbottom: auto, $cornerright: auto) {
+  width: $corner;
+  height: ($corner * 4);
+  display: inline-block;
+  content: "";
+  background-color: $navy;
+  position: absolute;
+  left: $cornerleft;
+  top: $cornertop;
+  bottom: $cornerbottom;
+  right: $cornerright;
+}
+
+@mixin ripple($color: $navy) {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  @include transition;
+  
+  &::after {
+    position: absolute; 
+    bottom: -4px;
+    left: 45%;
+    width: 10%;
+    height: 4px;
+    display: inline-block;
+    content: "";
+    opacity: 0;
+    background-color: $color;
+    @include transition;
+  }
+
+  &:hover::after {
+    width: 100%;
+    opacity: 1;
+    left: 0;
+    bottom: 0;
+  }
+}
+
+@mixin wipe($color: $green) {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  @include transition;
+  
+  &::after {
+    position: absolute; 
+    left: -20%;
+    top: 125%;
+    width: 200%;
+    height: 150%;
+    display: inline-block;
+    background-blend-mode: overlay;
+    content: "";
+    opacity: 0;
+    background-color: $color !important;
+    transform: rotate(-15deg);
+    z-index: -10;
+    @include transition;
+  }
+
+  &:hover {
+    color: white;
+    background-color: transparent !important;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    top: 0%;
+    transform: rotate(0deg);
+  }
+}
+
+
+// CNAB Typographic Scale
+// ---------------------------------------
+$base-font:  18px;                 // 18 - p
+
+$base-xxxlg: ($base-font * 4.775); // 96
+$base-xxlg:  ($base-font * 2.4);   // 48
+$base-xlg:   ($base-font * 1.8);   // 36 - h3
+$base-lg:    ($base-font * 1.2);   // 24 - h4, p.lead
+$base-sm:    ($base-font * 0.875); // 18 - small
+
+
+html,
+body {
+  padding: 0;
   margin: 0;
-  font-size: 2.25rem;
-  font-weight: bold;
-  letter-spacing: -0.025em;
-  color: #fff;
+  min-height: 100%;
+  height: 100vh;
+}
+
+body {
+  line-height: 1.7256;
+  font-size: $base-font;
+  font-family: $work;
+  color: $navy;
+  position: relative;
+  background: linear-gradient(rgb(255, 255, 255), rgba(220, 221, 221, 0.35) );
+  background-attachment: fixed;
+}
+
+
+// CNAB Base Layout 
+#root {
+  position: relative;
+  padding-bottom: 8.5rem;
+}
+
+.ui.container {
+  padding-bottom: 1.5rem;
+
+  .ui.container {
+    padding-bottom: 0;
+  }
+}
+
+.ui.segment {
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+
+  &.raised {
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.ui.header {
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerbar {
+  position: absolute;
+}
+
+
+// CNAB Content
+
+h1, h2, h3, h4, h5, h6,
+strong {
+  &.ui.header {
+    font-family: $workbold;
+    color: $navy;
+  }
+}
+
+h3.ui.header {
+  font-size: $base-lg;
+  opacity: 0.825;
+  margin-top: 1.75rem;
 }
 
 p {
-  font-size: 24px;
+  padding-right: 12.5%;
+  line-height: 1.75;
 }
 
-li {
-  list-style: none;
+.ui.button {
+  box-sizing: border-box;
+  font-family: $workbold;
+  font-size: $base-font;
+  border-radius: 0;
+  font-weight: 600;
+  color: $navy;
+  margin: 0;
+  padding: 0 2rem;
+  line-height: 2.5;
+  border: 3px solid $navy;
+  z-index: 600;
+  background: transparent !important;
+
+  &.primary {
+    background: transparent !important;
+    color: $navy;
+    border: 4px solid $navy;
+    @include wipe($green);
+  }
+
+  &.secondary {
+    color: $navy;
+    @include ripple;
+
+    &:hover {
+      color: $navy;
+    }
+  }
 }
 
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
+
+// Header
+h2.ui.header {
+  margin: 0 0 2rem;
+  padding: 1rem 0;
+  color: $navy;
+  font-family: $workbold;
+  font-size: $base-xxlg;
+  position: relative;
+  line-height: 1.825;
+
+  &:last-child {
+    margin-bottom: 2rem;
+  }
+
+  &::after {
+    width: 200%;
+    height: 2px;
+    left: -10%;
+    position: absolute;
+    background-color: rgba(30,30,30,0.065);
+    content: " ";
+    display: inline-block;
+    z-index: 1020;
+    bottom: 1rem;
+  }
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-  cursor: pointer;
+.ui.message {
+  border: none;
+  background-color: transparent;
+  font-size: $base-font;
+  font-family: $work;
+  box-shadow: none;
+  padding: 0;
+  line-height: 1.75;
+  margin: 0 auto;
+
+  &.succeeded,
+  &.verified {
+    color: darken($green, 12.5%);
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  &.error,
+  &.unsigned {
+    color: darken($red, 12.5%);
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  &.info,
+  &.output {
+    color: $navy;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+  }
+}
+
+
+// homepage main action panels
+.ui.cards {
+  color: $navy;
+  padding-top: 3.5rem;
+
+  .ui.card {
+    width: 30.333%;
+    margin: 2rem 1.5%;
+    border: 3px solid $navy;
+    border-radius: 0;
+    box-shadow: none;
+    background: white;
+    position: relative;
+
+    &:before {
+      width: 10%;
+      height: 7px;
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      z-index: 1020;
+      background: $green;
+      @include transition;
+    }
+
+    img.ui.image {
+      max-width: 4rem;
+      float: left;
+      margin: 0.5rem 2rem 1.25rem 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .header {
+      color: $navy;
+      font-weight: $workbold;
+      margin-top: 0.825rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+
+    .meta {
+      font-size: 1rem;
+    }
+
+    .description {
+      font-size: $base-sm;
+      line-height: 1.5;
+    }
+
+    &:hover {
+      border-radius: 0;
+      box-shadow: none;
+
+      &:before {
+        width: 100%;
+        opacity: 1;
+        background-color: $green;
+      }
+    }
+    
+    // ape disabled state
+    &:first-child {
+      border-color: $navy;
+
+      &:hover {
+        border: 3px solid $navy;
+      }
+    }
+    
+    &:nth-child(2),
+    &:last-child {
+      cursor: not-allowed;
+      border-color: $bluel;
+      
+      .header,
+      .meta,
+      .description {
+        opacity: 0.7;
+      }
+      
+      &:hover {
+        border: 3px solid $bluel;
+        
+        &:before {
+          background: transparent;
+        }
+      }
+    }
+    // [href^="http:"] {
+    //   border-color: $navy;
+    //   &:not {}
+    // }
+
+  }
+}
+
+// button bar at the bottom
+.ui.steps {
+  background-color: white;
+  border: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 0.5rem 0;
+  min-height: 7rem;
+  border-radius: 0;
+  margin: 0;
+
+  .ui.button {
+    float: right;
+    min-height: 4rem;
+    position: absolute;
+    top: 1.5rem;
+    padding: 0;
+    font-size: $base-font;
+
+    &.secondary {
+      border: none;
+      left: 1.75rem;
+      padding: 0 1rem;
+    }
+
+    &.primary {
+      right: 1.75rem;
+      padding: 0 3.5rem;
+    }
+  }
+
+  .ui.message,
+  .ui.label {
+    border: none;
+    background-color: transparent;
+    font-size: $base-sm;
+    font-family: $workbold;
+    text-align: center;
+    box-shadow: none;
+    padding: 0;
+    line-height: 1.2;
+    margin: 2.5rem auto 0;
+
+    &.error {
+      color: darken($red, 12.5%);
+    }
+  }
+
+  .ui.progress {
+    margin: 2rem auto 0;
+    min-width: 90%;
+    float: right;
+    background-color: transparent;
+
+    .label {
+      top: 0;
+      width: auto;
+      right: 0;
+      left: auto;
+      color: $navy;
+    }
+
+    .bar {
+      margin-top: 0.425rem;
+      height: 0.75rem;
+      border-radius: 1rem;
+      background-image: linear-gradient(
+        to right,
+        $green,
+        $yellow,
+        $yellowl,
+        $bluel
+      );
+      @include transition;
+
+      &:after {
+        background: black;
+      }
+    }
+
+    &.success {
+      .label {
+        color: $green;
+      }
+      
+      .bar {
+        background-image: linear-gradient(
+          to right,
+          $yellowl,
+          $green
+        );
+      }
+    }
+
+    &.error {
+      .label {
+        color: $red;
+      }
+      
+      .bar {
+        background-image: linear-gradient(
+          to right,
+          $yellowl,
+          $red
+        );
+      }
+    }
+  }
+}
+
+form.ui.form {
+
+  .segment {
+    margin: 0 0 2rem;
+    background: transparent;
+  }
+  
+  .sub.header {
+    font-family: $workbold;
+    font-size: 0.825rem;
+    opacity: 0.67;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .ui.message {
+    width: 50%;
+    margin-left: 34.33%;
+    text-align: left;
+    float: right;
+    font-size: $base-sm;
+    margin-bottom: -1rem;
+  }
+
+  label,
+  .inline.field > label,
+  .inline.fields > label {
+    min-width: 33.33%;
+    font-family: $work !important;
+    font-weight: 400 !important;
+    font-size: $base-font !important;
+    line-height: 1.75;
+    border-radius: 0;
+    vertical-align: middle !important;
+    color: $navy !important;
+    margin: 0;
+  }
+  
+  .inline.field,
+  .inline.fields, {
+    width: 100%;
+
+    &:first-child {
+      margin: 0 !important;
+    }
+
+    .ui.input {
+      min-width: 50%;
+    }
+
+    input,
+    select,
+    textarea {
+      color: $navy;
+      font-family: $workbold;
+      font-weight: 600;
+      border-radius: 0;
+      border: 1px solid $bluel;
+      background-color: lighten($yellowl, 10%);
+      font-size: $base-font;
+      padding: 0 0.825rem;
+      line-height: 2.5;
+      @include transition;
+      
+      &:active,
+      &:focus,
+      &:hover {
+        border: 1px solid lighten($navy, 35%);
+        border-radius: 0;
+        background: linear-gradient( lighten($bluel, 7.5%), white);
+      }
+
+      &:active,
+      &:focus {
+        background: lighten($bluel, 7.5%);
+        border: 1px solid darken($navy, 15%);
+        color: darken($navy, 15%);
+      }
+    }
+
+    .ui.selection.dropdown {
+      color: $navy;
+      font-family: $workbold;
+      font-weight: 600;
+      border-radius: 0;
+      border: 1px solid $bluel;
+      background-color: lighten($yellowl, 10%);
+      font-size: $base-font;
+      padding: 0 0.825rem;
+      line-height: 2.5;
+      margin-left: -0.5rem;
+      @include transition;
+      
+      &:active,
+      &:focus,
+      &:hover {
+        border: 1px solid $navy;
+        border-radius: 0;
+        background: linear-gradient( lighten($bluel, 7.5%), white);
+      }
+
+      &:active,
+      &:focus {
+        background: lighten($bluel, 7.5%);
+        border: 1px solid darken($navy, 15%);
+        color: darken($navy, 15%);
+      }
+    }
+  }
+
+  // adjust just the credentials widget
+  .inline.fields {
+
+    & > .inline.field:first-child {
+      width: auto;
+
+      .ui.selection.dropdown {
+        width: 7.5rem;
+      }
+    }
+
+    & > .inline.field:nth-child(2) {
+      float: left;
+      // background: red;
+      margin-left: 3.5%;
+      
+      label {
+        // background: red;
+      }
+    }
+  }
 }

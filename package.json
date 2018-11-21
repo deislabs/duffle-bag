@@ -184,6 +184,7 @@
     "@types/tmp": "0.0.33",
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
+    "font-work-sans": "^1.0.3",
     "history": "^4.6.1",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
@@ -194,6 +195,7 @@
     "redux": "^3.6.0",
     "redux-thunk": "^2.1.0",
     "semantic-ui-react": "^0.82.1",
+    "semantic-ui-sass": "^2.3.1",
     "shelljs": "^0.8.2",
     "source-map-support": "^0.5.0",
     "tmp": "^0.0.33"

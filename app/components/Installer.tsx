@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Container, Form, Header, InputOnChangeData, Segment, Label, DropdownProps, Progress, Divider, Message } from 'semantic-ui-react';
+import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -168,11 +168,11 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       case InstallProgress.NotStarted:
         return (<Label>Installation not yet started</Label>);
       case InstallProgress.InProgress:
-        return (<Progress percent={70} active>Installing</Progress>);
+        return (<Progress percent={85} active>Installing</Progress>);
       case InstallProgress.Succeeded:
-        return (<Progress percent={100} success>Install complete</Progress>);
+        return (<Progress percent={85} success>Install complete</Progress>);
       case InstallProgress.Failed:
-        return (<Progress percent={100} error>Install failed: {this.state.installResult}</Progress>);
+        return (<Progress percent={85} error>Install failed: {this.state.installResult}</Progress>);
     }
   }
 
@@ -180,25 +180,29 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return (
       <Container>
         <Form>
-          <Segment raised>
+          <Segment>
             <Header sub>Install as</Header>
             <Form.Group inline>
               <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
+            </Form.Group>
+            <Form.Group inline>
               {...this.installationNameValidityPanel()}
             </Form.Group>
           </Segment>
-          <Segment raised>
+          <Segment>
             <Header sub>Installation parameters</Header>
             {...this.parametersUI()}
           </Segment>
-          <Segment raised>
+          <Segment>
             <Header sub>Credentials</Header>
             {this.credentialsUI()}
           </Segment>
-          <Segment raised>
-            <div><Button primary onClick={() => this.install()}>Install</Button></div>
-            <Divider />
-            {this.progress()}
+          <Segment>
+            <Step.Group>
+              <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+              {this.progress()}
+              <Button primary right onClick={() => this.install()}>Install</Button>
+            </Step.Group>
           </Segment>
         </Form>
       </Container>
@@ -258,6 +262,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       return [ (<Label>This bundle does not require any credentials</Label>) ];
     }
     return this.credentials.map((c) => this.credentialWidget(c));
+  }
+
+  private goBack(): void {
+    this.props.parent.setState({ action: 'install' });
   }
 
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="126px" height="147px" viewBox="0 0 126 147" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>Upgrade</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M63,83 C79.0162577,83 92,70.0162577 92,54 C92,37.9837423 79.0162577,25 63,25 C46.9837423,25 34,37.9837423 34,54 C34,70.0162577 46.9837423,83 63,83 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="58" height="58" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Upgrade" fill-rule="nonzero">
+            <rect id="Rectangle" fill="#FFF3E6" x="25" y="70" width="76" height="58"></rect>
+            <circle id="Oval-2" fill="#2EC4B6" cx="43" cy="85" r="29"></circle>
+            <use id="Oval-2" stroke="#CCFF66" mask="url(#mask-2)" stroke-width="8" stroke-dasharray="10" xlink:href="#path-1"></use>
+            <circle id="Oval-2" fill="#E83683" style="mix-blend-mode: multiply;" cx="83" cy="85" r="29"></circle>
+            <g id="corner" transform="translate(105.500000, 20.500000) scale(-1, 1) translate(-105.500000, -20.500000) translate(85.000000, 0.000000)" fill="#D3DDF7">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(20.500000, 2.928571) rotate(-90.000000) translate(-20.500000, -2.928571) " x="17.5714286" y="-17.5714286" width="5.85714286" height="41"></rect>
+            </g>
+            <g id="corner" fill="#D3DDF7">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <rect id="Rectangle-2" transform="translate(20.500000, 2.928571) rotate(-90.000000) translate(-20.500000, -2.928571) " x="17.5714286" y="-17.5714286" width="5.85714286" height="41"></rect>
+            </g>
+            <g id="corner" transform="translate(123.000000, 126.500000) scale(-1, -1) translate(-123.000000, -126.500000) translate(120.000000, 106.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+            </g>
+            <g id="corner" transform="translate(63.000000, 126.500000) scale(1, -1) translate(-63.000000, -126.500000) translate(0.000000, 106.000000)" fill="#3731AA">
+                <rect id="Rectangle-2" x="0" y="0" width="5.85714286" height="41"></rect>
+                <polygon id="Rectangle-2" points="1.55639684e-07 5.85714293 1.55639685e-07 -7.14285413e-08 125.336914 -7.14285386e-08 125.336914 5.85714293"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

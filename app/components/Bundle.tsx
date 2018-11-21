@@ -6,7 +6,6 @@ import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from 
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable } from '../utils/errorable';
-import { fs } from '../utils/fs';
 
 const description = tryLoadDescription();
 

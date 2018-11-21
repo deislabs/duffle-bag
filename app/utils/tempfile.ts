@@ -38,3 +38,12 @@ export async function withBinaryTempFile<T>(content: Buffer, fileType: string, f
       tempFile.removeCallback();
   }
 }
+
+export async function withTempDirectory<T>(fn: (dirpath: string) => Promise<T>): Promise<T> {
+    const tempDir = tmp.dirSync({ prefix: "dufflebag-", unsafeCleanup: true });
+    try {
+        return await fn(tempDir.name);
+    } finally {
+        tempDir.removeCallback();
+    }
+}

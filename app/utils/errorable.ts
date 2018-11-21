@@ -24,3 +24,7 @@ export function map<T, U>(e: Errorable<T>, fn: (t: T) => U): Errorable<U> {
   }
   return { succeeded: true, result: fn(e.result) };
 }
+
+export function failWith<T>(error: string): Errorable<T> {
+  return { succeeded: false, error: [error] };
+}

@@ -14,14 +14,21 @@ function loadCNAB(): string | undefined {
   }
 }
 
-async function loadFullBundle(): Promise<{} | undefined> {
+function fullBundleURL(): string | undefined {
   try {
-    const bundleUrl = require('../../data/bundle.tgz');
-    const bundleContent = await request.get(bundleUrl, { encoding: null });
-    return bundleContent;
+    return require('../../data/bundle.tgz');
   } catch {
     return undefined;
   }
+}
+
+async function loadFullBundle(): Promise<{} | undefined> {
+  const bundleUrl = fullBundleURL();
+  if (!bundleUrl) {
+    return undefined;
+  }
+  const bundleContent = await request.get(bundleUrl, { encoding: null });
+  return bundleContent;
 }
 
 export function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: boolean) => Promise<T>): Promise<T> {

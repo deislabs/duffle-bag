@@ -6,7 +6,7 @@ import { parseParameters, ParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
-import { failed, succeeded, map, failWith } from '../utils/errorable';
+import { failed, succeeded, map } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
 import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
@@ -313,21 +313,20 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       // Or maybe we can already do that and go via a temp directory instead of local store
       // for now.
       return await embedded.withFullBundle(async (fullBundleFile) => {
-        if (!fullBundleFile) {
-          return failWith<string>('Full bundle file was empty');
-        }
-        return await withTempDirectory(async (unpackDirectory) => {
-          this.setState({ installProgress: InstallProgress.Importing });
-          const importResult = await duffle.importFile(shell.shell, fullBundleFile, unpackDirectory);
+        if (fullBundleFile) {
+          const importResult = await withTempDirectory(async (unpackDirectory) => {
+            this.setState({ installProgress: InstallProgress.Importing });
+            return await duffle.importFile(shell.shell, fullBundleFile, unpackDirectory);
+          });
           if (failed(importResult)) {
             return map(importResult, (_) => '');
           }
-          return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
-            this.setState({ installProgress: InstallProgress.Installing });
-            const name = this.state.installationName;
-            const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
-            return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
-          });
+        }
+        return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+          this.setState({ installProgress: InstallProgress.Installing });
+          const name = this.state.installationName;
+          const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
+          return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
         });
       });
     });

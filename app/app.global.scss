@@ -635,7 +635,7 @@ form.ui.form {
       &:active,
       &:focus,
       &:hover {
-        border: 1px solid lighten($navy, 35%);
+        border: 1px solid $navy;
         border-radius: 0;
         background: linear-gradient( lighten($bluel, 7.5%), white);
       }
@@ -645,6 +645,28 @@ form.ui.form {
         background: lighten($bluel, 7.5%);
         border: 1px solid darken($navy, 15%);
         color: darken($navy, 15%);
+      }
+    }
+  }
+
+  // adjust just the credentials widget
+  .inline.fields {
+
+    & > .inline.field:first-child {
+      width: auto;
+
+      .ui.selection.dropdown {
+        width: 7.5rem;
+      }
+    }
+
+    & > .inline.field:nth-child(2) {
+      float: left;
+      // background: red;
+      margin-left: 3.5%;
+      
+      label {
+        // background: red;
       }
     }
   }

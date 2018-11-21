@@ -273,7 +273,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private goBack(): void {
-    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
+    this.props.parent.setState({ action: null });
   }
 
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];

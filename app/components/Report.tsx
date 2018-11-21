@@ -89,7 +89,7 @@ export default class Report extends React.Component<Properties, State, {}>  {
   }
 
   private goBack(): void {
-    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
+    this.props.parent.setState({ action: null });
   }
 
   private tryAgain(): void {

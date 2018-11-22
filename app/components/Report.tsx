@@ -2,9 +2,11 @@ import * as React from 'react';
 import { Button, Container, Header, Message, Segment, Step, Icon } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
+import { BundleManifest } from '../utils/duffle.objectmodel';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
+  readonly bundleManifest: BundleManifest;
   readonly succeeded: boolean;
   readonly output: string;
   readonly error: string;
@@ -87,12 +89,12 @@ export default class Report extends React.Component<Properties, State, {}>  {
   }
 
   private goBack(): void {
-    this.props.parent.setState({ action: 'install' });
+    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
   }
 
   private tryAgain(): void {
     // TODO: save parameters and credentials
-    this.props.parent.setState({ action: 'install' });
+    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
   }
 }
 

@@ -1,12 +1,17 @@
 import * as request from 'request-promise-native';
 
 import { withTempFile, withBinaryTempFile } from "./tempfile";
+import { BundleManifest } from './duffle.objectmodel';
 
-export const bundle: any = require('../../data/bundle.json');
-export const cnab: string | undefined = loadCNAB();
+export const bundlePromise: Promise<BundleManifest> = loadBundleManifest();
+export const cnabPromise: Promise<string | undefined> = loadCNAB();
 export const fullBundlePromise: Promise<{} | undefined> = loadFullBundle();
 
-function loadCNAB(): string | undefined {
+async function loadBundleManifest(): Promise<BundleManifest> {
+  return require('../../data/bundle.json');
+}
+
+async function loadCNAB(): Promise<string | undefined> {
   try {
     return require('../../data/bundle.cnab');
   } catch {
@@ -31,11 +36,13 @@ async function loadFullBundle(): Promise<{} | undefined> {
   return bundleContent;
 }
 
-export function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: boolean) => Promise<T>): Promise<T> {
+export async function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: boolean) => Promise<T>): Promise<T> {
+  const cnab = await cnabPromise;
+  const bundle = await bundlePromise;
   const signed = !!cnab;
   const ext = signed ? 'cnab' : 'json';
   const bundleText = cnab || JSON.stringify(bundle, undefined, 2);
-  return withTempFile(bundleText, ext, (path) => fn(path, signed));
+  return await withTempFile(bundleText, ext, (path) => fn(path, signed));
 }
 
 export async function withFullBundle<T>(fn: (bundleFilePath: string | undefined) => Promise<T>): Promise<T> {

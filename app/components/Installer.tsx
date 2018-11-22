@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Message } from 'semantic-ui-react';
 
 import { Actionable } from './contract';
-import { parseParameters, ParameterDefinition } from '../utils/parameters';
+import { parseParameters, NamedParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
@@ -11,9 +11,11 @@ import * as embedded from '../utils/embedded';
 import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
 import { project } from '../utils/projection';
+import { BundleManifest } from '../utils/duffle.objectmodel';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
+  readonly bundleManifest: BundleManifest;
 }
 
 enum InstallProgress {
@@ -31,7 +33,7 @@ interface Validity {
 }
 
 class ParameterValue {
-  constructor(readonly definition: ParameterDefinition, readonly text: string) {}
+  constructor(readonly definition: NamedParameterDefinition, readonly text: string) {}
 
   get validity(): Validity {
     // TODO: embetter
@@ -73,21 +75,21 @@ interface State {
 }
 
 export default class Installer extends React.Component<Properties, State, {}>  {
-  private readonly parameterDefinitions: ParameterDefinition[];
+  private readonly parameterDefinitions: NamedParameterDefinition[];
   private readonly credentials: BundleCredential[];
 
   constructor(props: Readonly<Properties>) {
     super(props);
 
-    this.parameterDefinitions = parseParameters(embedded.bundle);
-    this.credentials = parseCredentials(embedded.bundle);
+    this.parameterDefinitions = parseParameters(this.props.bundleManifest);
+    this.credentials = parseCredentials(this.props.bundleManifest);
 
     const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd, (pd.defaultValue || '').toString()) }));
     const ipvObj: { [key: string]: ParameterValue } = Object.assign({}, ...initialParameterValues);
     const initialCredentialValues = this.credentials.map((c) => this.initialCredential(c));
     const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
     this.state = {
-      installationName: embedded.bundle.name,
+      installationName: this.props.bundleManifest.name,
       installationNameExists: undefined,
       parameterValues: ipvObj,
       credentialValues: icvObj,
@@ -232,7 +234,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.parameterDefinitions.map((pd) => this.inputWidget(pd));
   }
 
-  private inputWidget(pd: ParameterDefinition): JSX.Element {
+  private inputWidget(pd: NamedParameterDefinition): JSX.Element {
     if (pd.type === "bool") {
       return this.boolInputWidget(pd);
     }
@@ -242,7 +244,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.freeformInputWidget(pd);
   }
 
-  private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
+  private freeformInputWidget(pd: NamedParameterDefinition): JSX.Element {
     const validationMessage = this.state.parameterValues[pd.name].validity.isValid ?
       undefined :
       (<Message>{this.state.parameterValues[pd.name].validity.reason}</Message>);
@@ -253,12 +255,12 @@ export default class Installer extends React.Component<Properties, State, {}>  {
       </Form.Group>);
   }
 
-  private selectInputWidget(pd: ParameterDefinition): JSX.Element {
+  private selectInputWidget(pd: NamedParameterDefinition): JSX.Element {
     const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
     return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
 
-  private boolInputWidget(pd: ParameterDefinition): JSX.Element {
+  private boolInputWidget(pd: NamedParameterDefinition): JSX.Element {
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
     return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
@@ -271,7 +273,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private goBack(): void {
-    this.props.parent.setState({ action: 'install' });
+    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
   }
 
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
@@ -335,10 +337,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     // we may need to pass --insecure to the Duffle CLI.
     if (failed(result)) {
       this.setState({ installProgress: InstallProgress.Failed, installResult: result.error[0] });
-      this.props.parent.setState({ action: 'report', state: { succeeded: false, output: '', error: result.error[0] } });
+      this.props.parent.setState({ action: 'report', state: { bundleManifest: this.props.bundleManifest, succeeded: false, output: '', error: result.error[0] } });
       return;
     }
-    this.props.parent.setState({ action: 'report', state: { succeeded: true, output: result.result, error: '' } });
+    this.props.parent.setState({ action: 'report', state: { bundleManifest: this.props.bundleManifest, succeeded: true, output: result.result, error: '' } });
     this.setState({ installProgress: InstallProgress.Succeeded });
   }
 }

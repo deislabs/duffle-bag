@@ -28,9 +28,9 @@ export default class Home extends React.Component<{}, Actionable, {}> {
   private body(): JSX.Element {
     switch (this.state.action) {
       case 'install':
-        return (<Installer parent={this} />);
+        return (<Installer parent={this} bundleManifest={this.state.state.bundleManifest} />);
       case 'report':
-        return (<Report parent={this} succeeded={this.state.state.succeeded} output={this.state.state.output} error={this.state.state.error} />);
+        return (<Report parent={this} bundleManifest={this.state.state.bundleManifest} succeeded={this.state.state.succeeded} output={this.state.state.output} error={this.state.state.error} />);
       default:
         return (<Bundle parent={this} />);
     }

@@ -6,14 +6,14 @@ import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from 
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable } from '../utils/errorable';
-
-const description = tryLoadDescription();
+import { BundleManifest } from '../utils/duffle.objectmodel';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
 }
 
 interface State {
+  bundleManifest: BundleManifest | undefined;
   duffle: 'pending' | BinaryInfo | undefined;
   signingStatus: VerificationUI;
   hasFullBundle: boolean | undefined;
@@ -36,12 +36,20 @@ interface VerificationUI {
 export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
-    this.state = { duffle: 'pending', signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' }, hasFullBundle: undefined };
+    this.state = {
+      duffle: 'pending',
+      signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' },
+      bundleManifest: undefined,
+      hasFullBundle: undefined
+    };
   }
 
   async componentDidMount() {
     const duffleBin = await findDuffleBinary(shell);
-    this.setState({duffle: duffleBin});
+    this.setState({
+      bundleManifest: await embedded.bundlePromise,
+      duffle: duffleBin
+    });
     if (duffleBin) {
       const verifyResult = await embedded.withBundleFile(async (tempFile, isSigned) => {
         if (isSigned) {
@@ -63,7 +71,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     return (
       <Container>
         <Segment raised>
-          <Header sub>Version {embedded.bundle.version}</Header>
+          <Header sub>Version {this.bundleVersion()}</Header>
           {this.thicknessPanel()}
           {this.signaturePanel()}
           {descPanel.location === 'header' ? descPanel.content : ''}
@@ -75,7 +83,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
             <Card.Content>
             <Image src='img/install.svg' />
               <Card.Header>Install</Card.Header>
-              <Card.Meta>{embedded.bundle.version}</Card.Meta>
+              <Card.Meta>{this.bundleVersion()}</Card.Meta>
               <Card.Description>
                 Run the bundle install steps, as defined by the bundle author.
               </Card.Description>
@@ -116,6 +124,20 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     );
   }
 
+  private bundleVersion(): string {
+    if (this.state.bundleManifest) {
+      return this.state.bundleManifest.version;
+    }
+    return '(loading)';
+  }
+
+  private bundleDescription(): string | undefined {
+    if (this.state.bundleManifest) {
+      return this.state.bundleManifest.description;
+    }
+    return '(loading)';
+  }
+
   private signaturePanel(): JSX.Element {
     const text = this.state.signingStatus.text;
     switch (this.state.signingStatus.display) {
@@ -153,11 +175,25 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   private descriptionPanel(): { location: 'header' | 'segment', content: JSX.Element } {
+    const description = this.tryLoadDescription();
     if (description.format === 'text') {
       return { location: 'header', content: (<Header as="h4">{description.text}</Header>) };
     } else {
       return { location: 'segment', content: (<Message info><div dangerouslySetInnerHTML={{__html: description.text}} /></Message>) };
     }
+  }
+
+  private tryLoadDescription(): Description {
+    try {
+      const description = require('../../data/description.html');
+      if (description) {
+        return { format: 'html', text: description };
+      }
+    } catch {
+      // ignore
+    }
+
+    return { format: 'text', text: this.bundleDescription() || 'No description available' };
   }
 
   private signingStatus(r: Errorable<SignatureVerification>): VerificationUI {
@@ -176,24 +212,11 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   private install(): void {
-    this.props.parent.setState({ action: 'install' });
+    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.state.bundleManifest! } });
   }
 }
 
 interface Description {
   readonly format: 'html' | 'text';
   readonly text: string;
-}
-
-function tryLoadDescription(): Description {
-  try {
-    const description = require('../../data/description.html');
-    if (description) {
-      return { format: 'html', text: description };
-    }
-  } catch {
-    // ignore
-  }
-
-  return { format: 'text', text: embedded.bundle.description || 'No description available' };
 }

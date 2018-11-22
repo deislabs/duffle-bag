@@ -121,6 +121,10 @@ export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promi
     return await invokeObjFromSR(sh, 'bundle verify', `-f ${bundleFilePath}`, {}, parse);
 }
 
+export async function importFile(sh: shell.Shell, sourceFile: string, destinationDirectory: string): Promise<Errorable<null>> {
+    return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory} --insecure`, {}, (s) => null);
+}
+
 function paramsArgs(parameters: { [key: string]: string }): string {
     return pairs.fromStringMap(parameters)
         .filter((p) => !!p.value)

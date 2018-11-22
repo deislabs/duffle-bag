@@ -1,14 +1,18 @@
 {
   "name": "helloworld",
   "version": "0.1.1",
-  "invocationImages":
-    [
+  "invocationImages": [
       {
         "imageType": "docker",
         "image": "cnab/helloworld:0.1.1"
       }
     ],
-  "images": [],
+  "images": [
+    {
+      "imageType": "docker",
+      "image": "busybox"
+    }
+  ],
   "parameters": {
     "port": {
       "defaultValue": 8080,

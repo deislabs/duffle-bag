@@ -6,9 +6,9 @@ import { parseParameters, ParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
-import { failed, succeeded } from '../utils/errorable';
+import { failed, succeeded, map } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
-import { withOptionalTempFile } from '../utils/tempfile';
+import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
 import { project } from '../utils/projection';
 
@@ -18,7 +18,9 @@ interface Properties {
 
 enum InstallProgress {
   NotStarted,
-  InProgress,
+  Starting,
+  Importing,
+  Installing,
   Succeeded,
   Failed
 }
@@ -167,8 +169,12 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     switch (this.state.installProgress) {
       case InstallProgress.NotStarted:
         return (<Label>Installation not yet started</Label>);
-      case InstallProgress.InProgress:
-        return (<Progress percent={85} active>Installing</Progress>);
+      case InstallProgress.Starting:
+        return (<Progress percent={10} active>Starting install</Progress>);
+      case InstallProgress.Importing:
+        return (<Progress percent={30} active>Importing images</Progress>);
+      case InstallProgress.Installing:
+        return (<Progress percent={85} active>Importing images</Progress>);
       case InstallProgress.Succeeded:
         return (<Progress percent={85} success>Install complete</Progress>);
       case InstallProgress.Failed:
@@ -271,6 +277,9 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
 
   private credentialWidget(credential: BundleCredential): JSX.Element {
+    // TODO: form items should have unique names - unfortunately the change handlers currently
+    // use the sender name to key into the credentials object so probably better to change them
+    // to use key or something instead
     const opts = this.credentialSourceKinds.map((v) => ({ text: this.credentialSourceKindText(v), value: v }));
     return (
       <Form.Group inline>
@@ -295,13 +304,30 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private async install(): Promise<void> {
-    this.setState({ installProgress: InstallProgress.InProgress });
+    this.setState({ installProgress: InstallProgress.Starting });
     const credsYAML = this.hasCredentials ? credentialsYAML('temp', this.state.credentialValues) : undefined;
     const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
-      return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
-        const name = this.state.installationName;
-        const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
-        return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
+      // TODO: once we have local store import, I think we can unify the whole thing into
+      // 'export on generate' and 'import on run' and won't need quite so much nonsense
+      //
+      // Or maybe we can already do that and go via a temp directory instead of local store
+      // for now.
+      return await embedded.withFullBundle(async (fullBundleFile) => {
+        if (fullBundleFile) {
+          const importResult = await withTempDirectory(async (unpackDirectory) => {
+            this.setState({ installProgress: InstallProgress.Importing });
+            return await duffle.importFile(shell.shell, fullBundleFile, unpackDirectory);
+          });
+          if (failed(importResult)) {
+            return map(importResult, (_) => '');
+          }
+        }
+        return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+          this.setState({ installProgress: InstallProgress.Installing });
+          const name = this.state.installationName;
+          const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
+          return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
+        });
       });
     });
     // TODO: would prefer to install the signed bundle if present.  But this introduces

@@ -100,6 +100,11 @@ module.exports = merge(baseConfig, {
         test: /\.cnab$/,
         use: 'raw-loader',
       },
+      // Thick bundle
+      {
+        test: /\.tgz$/,
+        use: 'file-loader',
+      },
       // Description
       {
         test: /description\.html$/,

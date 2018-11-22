@@ -8,6 +8,13 @@ export const fs = {
   // copyFile: promisify(sysfs.copyFile),
   // exists: promisify(sysfs.exists),
   // mkdir: promisify(sysfs.mkdir),
-  // readFile: promisify(sysfs.readFile),
-  writeFile: promisify((path: string, data: any, options: any) => sysfs.writeFile(path, data, options)),
+  readFile: promisify(
+    (path: string, cb: (err: NodeJS.ErrnoException, data: Buffer) => void) =>
+      sysfs.readFile(path, cb)),
+  stat: promisify(
+    (path: string, cb: (err: NodeJS.ErrnoException, stats: sysfs.Stats) => void) =>
+      sysfs.stat(path, cb)),
+  writeFile: promisify(
+    (path: string, data: any, cb: (err: NodeJS.ErrnoException) => void) =>
+      sysfs.writeFile(path, data, cb)),
 };

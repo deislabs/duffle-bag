@@ -13,7 +13,7 @@ interface Properties {
 }
 
 interface State {
-  bundleManifest: BundleManifest | undefined;
+  bundleManifest: 'pending' | BundleManifest | undefined;
   duffle: 'pending' | BinaryInfo | undefined;
   signingStatus: VerificationUI;
   hasFullBundle: boolean | undefined;
@@ -37,18 +37,29 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
     this.state = {
+      bundleManifest: 'pending',
       duffle: 'pending',
       signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' },
-      bundleManifest: undefined,
       hasFullBundle: undefined
     };
   }
 
   async componentDidMount() {
+    const embeddedBundle = await embedded.bundle;
+    if (failed(embeddedBundle)) {
+      // TODO: handle the error case better!  We need diagnostics!  (And a non-sucky error UI - but mostly diagnostics.)
+      this.setState({
+        bundleManifest: undefined,
+      });
+      return;
+    }
     const duffleBin = await findDuffleBinary(shell);
+    const bundleManifest = embeddedBundle.result.manifest;
+    const hasFullBundle = embedded.hasFullBundle();
     this.setState({
-      bundleManifest: await embedded.bundlePromise,
-      duffle: duffleBin
+      bundleManifest: bundleManifest,
+      duffle: duffleBin,
+      hasFullBundle: hasFullBundle
     });
     if (duffleBin) {
       const verifyResult = await embedded.withBundleFile(async (tempFile, isSigned) => {
@@ -62,8 +73,6 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     } else {
       this.setState({signingStatus: { display: SigningStatus.Error, text: 'Unable to check digital signature: Duffle binary not found' } });
     }
-    const fullBundle = await embedded.fullBundlePromise;
-    this.setState({ hasFullBundle: !!fullBundle });
   }
 
   render() {
@@ -126,16 +135,22 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
 
   private bundleVersion(): string {
     if (this.state.bundleManifest) {
+      if (this.state.bundleManifest === 'pending') {
+        return '(loading)';
+      }
       return this.state.bundleManifest.version;
     }
-    return '(loading)';
+    return '(cannot load bundle)';
   }
 
   private bundleDescription(): string | undefined {
     if (this.state.bundleManifest) {
+      if (this.state.bundleManifest === 'pending') {
+        return '(loading)';
+      }
       return this.state.bundleManifest.description;
     }
-    return '(loading)';
+    return '(cannot load bundle)';
   }
 
   private signaturePanel(): JSX.Element {

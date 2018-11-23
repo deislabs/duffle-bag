@@ -6,9 +6,9 @@ import { parseParameters, NamedParameterDefinition } from '../utils/parameters';
 import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
-import { failed, succeeded, map } from '../utils/errorable';
+import { failed, succeeded } from '../utils/errorable';
 import * as embedded from '../utils/embedded';
-import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
+import { withOptionalTempFile } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
 import { project } from '../utils/projection';
 import { BundleManifest } from '../utils/duffle.objectmodel';
@@ -308,33 +308,16 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   private async install(): Promise<void> {
     this.setState({ installProgress: InstallProgress.Starting });
     const credsYAML = this.hasCredentials ? credentialsYAML('temp', this.state.credentialValues) : undefined;
-    const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) => {
-      // TODO: once we have local store import, I think we can unify the whole thing into
-      // 'export on generate' and 'import on run' and won't need quite so much nonsense
-      //
-      // Or maybe we can already do that and go via a temp directory instead of local store
-      // for now.
-      return await embedded.withFullBundle(async (fullBundleFile) => {
-        if (fullBundleFile) {
-          const importResult = await withTempDirectory(async (unpackDirectory) => {
-            this.setState({ installProgress: InstallProgress.Importing });
-            return await duffle.importFile(shell.shell, fullBundleFile, unpackDirectory);
-          });
-          if (failed(importResult)) {
-            return map(importResult, (_) => '');
-          }
-        }
-        return await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
-          this.setState({ installProgress: InstallProgress.Installing });
-          const name = this.state.installationName;
-          const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
-          return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
-        });
-      });
-    });
+    const result = await withOptionalTempFile(credsYAML, 'yaml', async (credsTempFile) =>
+      await embedded.withBundleFile(async (bundleTempFile, isSigned) => {
+        this.setState({ installProgress: InstallProgress.Installing });
+        const name = this.state.installationName;
+        const parameterMap = project(this.state.parameterValues, (pv) => pv.text);
+        return await duffle.installFile(shell.shell, bundleTempFile, name, parameterMap, credsTempFile);
+      })
+    );
     // TODO: would prefer to install the signed bundle if present.  But this introduces
-    // issues of key management.  If we do continue with using the unsigned file, then
-    // we may need to pass --insecure to the Duffle CLI.
+    // issues of key management.
     if (failed(result)) {
       this.setState({ installProgress: InstallProgress.Failed, installResult: result.error[0] });
       this.props.parent.setState({ action: 'report', state: { bundleManifest: this.props.bundleManifest, succeeded: false, output: '', error: result.error[0] } });

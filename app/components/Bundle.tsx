@@ -5,16 +5,17 @@ import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
-import { failed, Errorable } from '../utils/errorable';
+import { failed, Errorable, map, succeeded } from '../utils/errorable';
 import { BundleManifest } from '../utils/duffle.objectmodel';
+import { Eventually, pending } from '../utils/eventually';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
 }
 
 interface State {
-  bundleManifest: 'pending' | BundleManifest | undefined;
-  duffle: 'pending' | BinaryInfo | undefined;
+  bundleManifest: Eventually<Errorable<BundleManifest>>;
+  duffle: Eventually<BinaryInfo | undefined>;
   signingStatus: VerificationUI;
   hasFullBundle: boolean | undefined;
 }
@@ -37,8 +38,8 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
     this.state = {
-      bundleManifest: 'pending',
-      duffle: 'pending',
+      bundleManifest: { ready: false },
+      duffle: { ready: false },
       signingStatus: { display: SigningStatus.Pending, text: 'Verifying signature...' },
       hasFullBundle: undefined
     };
@@ -46,22 +47,15 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
 
   async componentDidMount() {
     const embeddedBundle = await embedded.bundle;
-    if (failed(embeddedBundle)) {
-      // TODO: handle the error case better!  We need diagnostics!  (And a non-sucky error UI - but mostly diagnostics.)
-      this.setState({
-        bundleManifest: undefined,
-      });
-      return;
-    }
     const duffleBin = await findDuffleBinary(shell);
-    const bundleManifest = embeddedBundle.result.manifest;
+    const bundleManifest = map(embeddedBundle, (b) => b.manifest);
     const hasFullBundle = embedded.hasFullBundle();
     this.setState({
-      bundleManifest: bundleManifest,
-      duffle: duffleBin,
+      bundleManifest: { ready: true, result: bundleManifest },
+      duffle: { ready: true, result: duffleBin },
       hasFullBundle: hasFullBundle
     });
-    if (duffleBin) {
+    if (duffleBin && succeeded(bundleManifest)) {
       const verifyResult = await embedded.withBundleFile(async (tempFile, isSigned) => {
         if (isSigned) {
           const r = await verifyFile(shell, tempFile);
@@ -80,7 +74,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     return (
       <Container>
         <Segment raised>
-          <Header sub>Version {this.bundleVersion()}</Header>
+          <Header sub>{this.bundleVersion()}</Header>
           {this.thicknessPanel()}
           {this.signaturePanel()}
           {descPanel.location === 'header' ? descPanel.content : ''}
@@ -134,23 +128,23 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   private bundleVersion(): string {
-    if (this.state.bundleManifest) {
-      if (this.state.bundleManifest === 'pending') {
-        return '(loading)';
-      }
-      return this.state.bundleManifest.version;
+    if (pending(this.state.bundleManifest)) {
+      return 'Loading bundle details...';
     }
-    return '(cannot load bundle)';
+    if (succeeded(this.state.bundleManifest.result)) {
+      return `Version ${this.state.bundleManifest.result.result.version}`;
+    }
+    return `Can't load bundle: ${this.state.bundleManifest.result.error[0]}`;
   }
 
   private bundleDescription(): string | undefined {
-    if (this.state.bundleManifest) {
-      if (this.state.bundleManifest === 'pending') {
-        return '(loading)';
-      }
-      return this.state.bundleManifest.description;
+    if (pending(this.state.bundleManifest)) {
+      return 'Loading bundle description...';
     }
-    return '(cannot load bundle)';
+    if (succeeded(this.state.bundleManifest.result)) {
+      return this.state.bundleManifest.result.result.description;
+    }
+    return '';
   }
 
   private signaturePanel(): JSX.Element {
@@ -180,11 +174,11 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
   }
 
   private dufflePanel(): JSX.Element {
-    if (this.state.duffle) {
-      if (this.state.duffle === 'pending') {
-        return (<Message info>Finding Duffle binary...</Message>);
-      }
-      return (<Message info>Duffle version {this.state.duffle.version}</Message>);
+    if (pending(this.state.duffle)) {
+      return (<Message info>Finding Duffle binary...</Message>);
+    }
+    if (this.state.duffle.result) {
+      return (<Message info>Duffle version {this.state.duffle.result.version}</Message>);
     }
     return (<Message error>Duffle not found - cannot install bundle</Message>);
   }

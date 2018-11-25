@@ -8,25 +8,23 @@ import Report from './Report';
 import { Actionable } from './contract';
 import { BundleManifest } from '../utils/duffle.objectmodel';
 import * as embedded from '../utils/embedded';
-import { failed } from '../utils/errorable';
+import { failed, Errorable, map } from '../utils/errorable';
+import { Eventually, pending } from '../utils/eventually';
 
 interface State {
-  readonly bundleManifest: 'pending' | BundleManifest | undefined;
+  readonly bundleManifest: Eventually<Errorable<BundleManifest>>;
 }
 
 export default class Home extends React.Component<{}, Actionable & State, {}> {
   constructor(props: Readonly<{}>) {
     super(props);
-    this.state = { action: null, state: undefined, bundleManifest: 'pending' };
+    this.state = { action: null, state: undefined, bundleManifest: { ready: false } };
   }
 
   async componentDidMount() {
     const bundle = await embedded.bundle;
-    if (failed(bundle)) {
-      this.setState({bundleManifest: undefined});
-      return;
-    }
-    this.setState({bundleManifest: bundle.result.manifest});
+    const manifest = map(bundle, (b) => b.manifest);
+    this.setState({bundleManifest: { ready: true, result: manifest } });
   }
 
   render() {
@@ -41,21 +39,24 @@ export default class Home extends React.Component<{}, Actionable & State, {}> {
   }
 
   private manifestText(): string {
-    if (this.state.bundleManifest === 'pending') {
+    if (pending(this.state.bundleManifest)) {
       return 'Loading bundle...';
     }
-    if (this.state.bundleManifest === undefined) {
+    if (failed(this.state.bundleManifest.result)) {
       return "Can't load bundle";  // TODO: might be better to populate this statically then
     }
-    return this.state.bundleManifest.name;
+    return this.state.bundleManifest.result.result.name;
   }
 
   private body(): JSX.Element {
+    if (pending(this.state.bundleManifest) || failed(this.state.bundleManifest.result)) {
+      return (<Bundle parent={this} />);
+    }
     switch (this.state.action) {
       case 'install':
-        return (<Installer parent={this} bundleManifest={this.state.state.bundleManifest} />);
+        return (<Installer parent={this} bundleManifest={this.state.bundleManifest.result.result} />);
       case 'report':
-        return (<Report parent={this} bundleManifest={this.state.state.bundleManifest} succeeded={this.state.state.succeeded} output={this.state.state.output} error={this.state.state.error} />);
+        return (<Report parent={this} bundleManifest={this.state.bundleManifest.result.result} succeeded={this.state.state.succeeded} output={this.state.state.output} error={this.state.state.error} />);
       default:
         return (<Bundle parent={this} />);
     }

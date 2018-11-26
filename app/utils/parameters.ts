@@ -1,18 +1,12 @@
-export interface ParameterDefinition {
+import { ParameterDefinition, BundleManifest } from "./duffle.objectmodel";
+
+export interface NamedParameterDefinition extends ParameterDefinition {
     readonly name: string;
-    readonly type: string;
-    readonly allowedValues?: (number | string | boolean)[]; // number[] | string[] | boolean[];
-    readonly defaultValue?: number | string | boolean;
-    readonly minValue?: number;
-    readonly maxValue?: number;
-    readonly minLength?: number;
-    readonly maxLength?: number;
-    readonly metadata?: { description?: string };
 }
 
-export function parseParameters(json: any): ParameterDefinition[] {
+export function parseParameters(json: BundleManifest): NamedParameterDefinition[] {
     const parameters = json.parameters;
-    const defs: ParameterDefinition[] = [];
+    const defs: NamedParameterDefinition[] = [];
     if (parameters) {
         for (const k in parameters) {
             defs.push({ name: k, ...parameters[k] });

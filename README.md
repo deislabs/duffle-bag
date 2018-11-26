@@ -16,17 +16,18 @@ The easiest way to create an installer from this template is to use the duffle-c
 extension for VS Code.  Right-click a bundle and choose `Generate Self-Installer`.
 
 To hand author an installer, copy the templatem and copy your bundle (`bundle.json`,
-and `bundle.cnab` if signed) into the `data` directory.
+`bundle.cnab` if signed, or `bundle.tgz` if a full exported bundle) into the `data`
+directory.
 
-**Important!** If you are hand authoring a self-installer using this template, and
-your bundle is signed, you _must also_ provide the JSON (unsigned) version.  (The
-duffle-coat extension does this for you.  We hope to remove this requirement
-before release.)
+**NOTE:** if embedding a full bundle, it *must* be named `bundle.tgz`.
+By default, the Duffle CLI will name the `.tgz` file for the bundle name, but the
+self-installer requires `bundle.tgz`.  Again, the duffle-coat extension handles this
+automatically.
 
 # Customizing the installer
 
 The application generates most information dynamically from the included bundle
-file (at `data/bundle.json`/`.cnab`). The duffle-coat extension writes your bundle data
+file (at `data/bundle.json`/`.cnab`/`.tgz`). The duffle-coat extension writes your bundle data
 to this file at code generation time.  You can modify some chrome (e.g. product
 name, window title, etc.) via `package.json`, `app/package.json` and `app/app.html`.
 Again the duffle-coat extension sets reasonable defaults where it can.

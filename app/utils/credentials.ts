@@ -1,3 +1,5 @@
+import { BundleManifest } from "./duffle.objectmodel";
+
 export interface CredentialLocation {
   readonly env?: string;
   readonly path?: string;
@@ -14,7 +16,7 @@ export interface CredentialSetEntry {
   readonly value: string;
 }
 
-export function hasCredentials(manifest: any /* BundleManifest */): boolean {
+export function hasCredentials(manifest: BundleManifest): boolean {
     const credentials = manifest.credentials || {};
     return Object.keys(credentials).length > 0;
 }

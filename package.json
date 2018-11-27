@@ -64,6 +64,7 @@
     },
     "files": [
       "dist/",
+      "img/",
       "node_modules/",
       "app.html",
       "main.js",

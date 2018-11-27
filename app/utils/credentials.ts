@@ -1,4 +1,5 @@
 import { BundleManifest } from "./duffle.objectmodel";
+import { byName } from "./sort-orders";
 
 export interface CredentialLocation {
   readonly env?: string;
@@ -29,6 +30,7 @@ export function parseCredentials(manifest: any): BundleCredential[] {
           bcs.push({ name: k, ...credentials[k] });
       }
   }
+  bcs.sort(byName);
   return bcs;
 }
 

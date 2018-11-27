@@ -1,12 +1,9 @@
-import * as path from 'path';
 import * as request from 'request-promise-native';
 
-import { withTempFile, withBinaryTempFile, withTempDirectory } from "./tempfile";
-import * as duffle from './duffle';
+import { withTempFile, withBinaryTempFile } from "./tempfile";
 import { BundleManifest } from './duffle.objectmodel';
 import { failed, Errorable } from './errorable';
-import { fs } from './fs';
-import * as shell from './shell';
+import { extractTextFileFromTar } from './tar';
 
 interface LoadedBundle {
   readonly manifest: BundleManifest;
@@ -70,7 +67,7 @@ export async function withBundleFile<T>(fn: (bundleFilePath: string, isSigned: b
   return await withTempFile(bundleText, ext, (path) => fn(path, signed));
 }
 
-async function withFullBundle<T>(fn: (bundleFilePath: string | undefined) => Promise<T>): Promise<T> {
+export async function withFullBundle<T>(fn: (bundleFilePath: string | undefined) => Promise<T>): Promise<T> {
   const fullBundle = await loadFullBundle();
   if (!fullBundle) {
     return fn(undefined);
@@ -80,19 +77,10 @@ async function withFullBundle<T>(fn: (bundleFilePath: string | undefined) => Pro
 
 async function loadBundle(): Promise<Errorable<LoadedBundle>> {
   return await withFullBundle<Errorable<LoadedBundle>>(async (bundleFilePath) => {
-    if (!bundleFilePath) {
-      return loadBundleFromEmbeddedManifests();
+    if (bundleFilePath) {
+      return await loadBundleFromFullBundleFile(bundleFilePath);
     }
-    return await withTempDirectory<Errorable<LoadedBundle>>(async (dirpath) => {
-      const importResult = await duffle.importFile(shell.shell, bundleFilePath, dirpath);
-      if (failed(importResult)) {
-        return { succeeded: false, error: importResult.error };
-      }
-      // We need the extra directory level because 'duffle import' places the files into
-      // <source_file_name>/<bundle_name>
-      const extractPath = path.join(dirpath, path.basename(bundleFilePath, '.tgz'));
-      return await loadBundleFromDirectory(extractPath);
-    });
+    return loadBundleFromEmbeddedManifests();
   });
 }
 
@@ -111,18 +99,26 @@ function loadBundleFromEmbeddedManifests(): Errorable<LoadedBundle> {
   }
 }
 
-async function loadBundleFromDirectory(dirpath: string): Promise<Errorable<LoadedBundle>> {
-  const jsonFile = path.join(dirpath, 'bundle.json');
-  const cnabFile = path.join(dirpath, 'bundle.cnab');
-  if (await fs.exists(cnabFile)) {
-    const signedText = await fs.readTextFile(cnabFile, 'utf8') as string;
-    const manifest = extractManifest(signedText);
-    return { succeeded: true, result: { manifest: manifest, signedText: signedText } };
+async function loadBundleFromFullBundleFile(bundleFilePath: string): Promise<Errorable<LoadedBundle>> {
+  const signedText = await extractTextFileFromTar(bundleFilePath, 'bundle.cnab', 'utf-8');
+  if (signedText) {
+    return {
+      succeeded: true,
+      result: {
+        manifest: extractManifest(signedText),
+        signedText: signedText
+      }
+    };
   }
-  if (await fs.exists(jsonFile)) {
-    const unsignedText = await fs.readTextFile(jsonFile, 'utf8') as string;
-    const manifest = JSON.parse(unsignedText);
-    return { succeeded: true, result: { manifest: manifest, signedText: undefined } };
+  const unsignedText = await extractTextFileFromTar(bundleFilePath, 'bundle.json', 'utf-8');
+  if (unsignedText) {
+    return {
+      succeeded: true,
+      result: {
+        manifest: JSON.parse(unsignedText),
+        signedText: undefined
+      }
+    };
   }
   return { succeeded: false, error: ['Full bundle does not contain a CNAB manifest'] };
 }

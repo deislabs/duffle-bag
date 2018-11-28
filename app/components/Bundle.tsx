@@ -93,7 +93,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
             </Card.Content>
           </Card>
 
-          <Card>
+          {/* <Card>
             <Card.Content>
             <Image src='img/upgrade.svg' />
             <Card.Header>Upgrade</Card.Header>
@@ -113,7 +113,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
               Run the uninstall steps, as defined by the bundle author.
               </Card.Description>
             </Card.Content>
-          </Card>
+          </Card> */}
 
         </Card.Group>
 

@@ -10,10 +10,10 @@ export async function extractTextFileFromTar(tarfile: string, containedFilePath:
       await tar.x({
         file: tarfile,
         cwd: tempdir
-      }, [containedFilePath]);
+      }, ['./' + containedFilePath]);
       const extractedFilePath = path.join(tempdir, containedFilePath);
       if (await fs.exists(extractedFilePath)) {
-        return await fs.readTextFile(containedFilePath, encoding) as string;
+        return await fs.readTextFile(extractedFilePath, encoding) as string;
       }
       return undefined;
     } catch {

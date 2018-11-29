@@ -340,19 +340,6 @@ h2.ui.header {
     background: white;
     position: relative;
 
-    &:before {
-      width: 10%;
-      height: 7px;
-      content: " ";
-      position: absolute;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      z-index: 1020;
-      background: $green;
-      @include transition;
-    }
-
     img.ui.image {
       max-width: 4rem;
       float: left;
@@ -378,9 +365,45 @@ h2.ui.header {
       line-height: 1.5;
     }
 
+    // conditionally adjust the spacing depending on how many 'cards' appear (install, uninstall, upgrade)
+    // one
+    &:nth-child(1):nth-last-child(1) {
+      width: 100%;
+      margin: 2rem 0;
+    }
+
+    // two
+    &:nth-child(1):nth-last-child(2),
+    &:nth-child(2):nth-last-child(1) {
+      width: 45%;
+      margin: 2rem 2.5%;
+    }
+
+    // three
+    &:nth-last-child(3),
+    &:nth-child(2):nth-last-child(2),
+    &:nth-child(3):nth-last-child(1) {
+      width: 33.3333%;
+      margin: 2rem 1.5%;
+    }
+
+    // hover stripe effect
+    &:before {
+      width: 10%;
+      height: 7px;
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      z-index: 1020;
+      background: $green;
+      @include transition;
+    }
     &:hover {
       border-radius: 0;
       box-shadow: none;
+      border: 3px solid $navy;
 
       &:before {
         width: 100%;
@@ -388,40 +411,7 @@ h2.ui.header {
         background-color: $green;
       }
     }
-    
-    // ape disabled state
-    &:first-child {
-      border-color: $navy;
-
-      &:hover {
-        border: 3px solid $navy;
-      }
-    }
-    
-    &:nth-child(2),
-    &:last-child {
-      cursor: not-allowed;
-      border-color: $bluel;
-      
-      .header,
-      .meta,
-      .description {
-        opacity: 0.7;
-      }
-      
-      &:hover {
-        border: 3px solid $bluel;
-        
-        &:before {
-          background: transparent;
-        }
-      }
-    }
-    // [href^="http:"] {
-    //   border-color: $navy;
-    //   &:not {}
-    // }
-
+  
   }
 }
 
@@ -552,6 +542,7 @@ form.ui.form {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     letter-spacing: 0.05em;
+    opacity: 0.425;
   }
 
   .ui.message {
@@ -629,7 +620,7 @@ form.ui.form {
       font-size: $base-font;
       padding: 0 0.825rem;
       line-height: 2.5;
-      margin-left: -0.5rem;
+      margin-left: -0.25rem;
       @include transition;
       
       &:active,
@@ -652,22 +643,10 @@ form.ui.form {
   // adjust just the credentials widget
   .inline.fields {
 
-    & > .inline.field:first-child {
-      width: auto;
-
-      .ui.selection.dropdown {
-        width: 7.5rem;
-      }
+    & > .inline.field:nth-child(1):nth-last-child(2):first-child,
+    & > .inline.field:nth-child(2):nth-last-child(1):first-child {
+      width: 52.5%;
     }
 
-    & > .inline.field:nth-child(2) {
-      float: left;
-      // background: red;
-      margin-left: 3.5%;
-      
-      label {
-        // background: red;
-      }
-    }
   }
 }

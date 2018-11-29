@@ -590,6 +590,7 @@ form.ui.form {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     letter-spacing: 0.05em;
+    opacity: 0.425;
   }
 
   .ui.message {
@@ -667,7 +668,7 @@ form.ui.form {
       font-size: $base-font;
       padding: 0 0.825rem;
       line-height: 2.5;
-      margin-left: -0.5rem;
+      margin-left: -0.25rem;
       @include transition;
       
       &:active,
@@ -690,22 +691,10 @@ form.ui.form {
   // adjust just the credentials widget
   .inline.fields {
 
-    & > .inline.field:first-child {
-      width: auto;
-
-      .ui.selection.dropdown {
-        width: 7.5rem;
-      }
+    & > .inline.field:nth-child(1):nth-last-child(2):first-child,
+    & > .inline.field:nth-child(2):nth-last-child(1):first-child {
+      width: 52.5%;
     }
 
-    & > .inline.field:nth-child(2) {
-      float: left;
-      // background: red;
-      margin-left: 3.5%;
-      
-      label {
-        // background: red;
-      }
-    }
   }
 }

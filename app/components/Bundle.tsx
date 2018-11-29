@@ -74,13 +74,16 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     return (
       <Container>
         <Segment raised>
-          <Header sub>{this.bundleVersion()}</Header>
-          {this.thicknessPanel()}
-          {this.signaturePanel()}
-          {descPanel.location === 'header' ? descPanel.content : ''}
+          <Header sub>
+            <strong>{this.bundleVersion()} &nbsp;</strong> &mdash; {this.thicknessPanel()}.
+          </Header>
+          
+          <Header sub>{this.signaturePanel()}</Header>
+          <hr />
+          <Header sub>{descPanel.location === 'header' ? descPanel.content : ''}</Header>
+          <Header sub>{descPanel.location === 'segment' ? descPanel.content : ''}</Header>
         </Segment>
-        {descPanel.location === 'segment' ? descPanel.content : ''}
-
+        
         <Card.Group>
           <Card onClick={() => this.install()}>
             <Card.Content>
@@ -151,26 +154,26 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     const text = this.state.signingStatus.text;
     switch (this.state.signingStatus.display) {
       case SigningStatus.Error:
-        return (<Header sub color='orange'>{text}</Header>);
+        return (<span color='orange'>{text}</span>);
       case SigningStatus.Failed:
-        return (<Header sub color='red'>{text}</Header>);
+        return (<span color='red'>{text}</span>);
       case SigningStatus.Verified:
-        return (<Header sub>{text}</Header>);
+        return (<span color='green'>{text}</span>);
       case SigningStatus.Unsigned:
-        return (<Header sub color='grey'>{text}</Header>);
+        return (<span>{text}</span>);
       default:
-        return (<Header sub>{text}</Header>);
+        return (<span>{text}</span>);
     }
   }
 
   private thicknessPanel(): JSX.Element {
     if (this.state.hasFullBundle === undefined) {
-      return (<Header sub>Checking bundle type...</Header>);
+      return (<span>Checking bundle type...</span>);
     }
     if (this.state.hasFullBundle) {
-      return (<Header sub>This installer contains all required images and can be run offline</Header>);
+      return (<span>This installer contains all required images and can be run offline</span>);
     }
-    return (<Header sub>This installer will download any required images from the network</Header>);
+    return (<span>This installer will download any required images from the network</span>);
   }
 
   private dufflePanel(): JSX.Element {

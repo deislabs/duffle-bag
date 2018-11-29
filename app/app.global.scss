@@ -280,13 +280,61 @@ h2.ui.header {
   &::after {
     width: 200%;
     height: 2px;
-    left: -10%;
+    left: -20%;
     position: absolute;
     background-color: rgba(30,30,30,0.065);
     content: " ";
     display: inline-block;
     z-index: 1020;
     bottom: 1rem;
+  }
+}
+
+.ui.segment.raised {
+  background: white;
+  padding: 1rem 1.5rem;
+  border: 1px solid lighten($bluel, 5%);
+  margin: -1rem -2.5%;
+  width: 105%;
+  
+  .ui.sub.header {
+    font-family: $work;
+    color: $navy;
+    text-transform: none;
+    font-size: $base-sm;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 0;
+    margin: 0;
+
+    &.orange,
+    &.red,
+    .orange,
+    .red,
+    [color="orange"],
+    [color="red"] {
+      color: $red !important;
+    }
+
+    &.green,
+    .green,
+    [color="green"] {
+      color: $green !important;
+    }
+  }
+
+  h4 {
+    font-family: $work;
+    font-size: $base-sm;
+    font-weight: 400;
+  }
+
+  hr {
+    border: none !important;
+    outline: none;
+    margin: 0.5rem 0;
+    background-color: transparent;
+    @include box-shadow(0, 0, 0, white);
   }
 }
 
@@ -336,9 +384,9 @@ h2.ui.header {
     margin: 2rem 1.5%;
     border: 3px solid $navy;
     border-radius: 0;
-    box-shadow: none;
     background: white;
     position: relative;
+    @include box-shadow(0, 3px, 6px, rgba(30,30,30,.15));
 
     img.ui.image {
       max-width: 4rem;
@@ -368,8 +416,8 @@ h2.ui.header {
     // conditionally adjust the spacing depending on how many 'cards' appear (install, uninstall, upgrade)
     // one
     &:nth-child(1):nth-last-child(1) {
-      width: 100%;
-      margin: 2rem 0;
+      width: 70%;
+      margin: 2rem 15%;
     }
 
     // two

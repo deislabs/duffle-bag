@@ -465,112 +465,125 @@ h2.ui.header {
 
 // button bar at the bottom
 .ui.steps {
-  background-color: white;
-  border: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  padding: 0.5rem 0;
-  min-height: 7rem;
-  border-radius: 0;
-  margin: 0;
-
-  .ui.button {
-    float: right;
-    min-height: 4rem;
-    position: absolute;
-    top: 1.5rem;
-    padding: 0;
-    font-size: $base-font;
-
-    &.secondary {
-      border: none;
-      left: 1.75rem;
-      padding: 0 1rem;
-    }
-
-    &.primary {
-      right: 1.75rem;
-      padding: 0 3.5rem;
-    }
-  }
-
-  .ui.message,
-  .ui.label {
+  
+  .step {
+    background-color: white;
     border: none;
-    background-color: transparent;
-    font-size: $base-sm;
-    font-family: $workbold;
-    text-align: center;
-    box-shadow: none;
-    padding: 0;
-    line-height: 1.2;
-    margin: 2.5rem auto 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 0.5rem 0;
+    min-height: 7rem;
+    border-radius: 0;
+    margin: 0;
+    z-index: 500;
+    box-shadow: 0 3px 10px rgba(30,30,30,0.5);
 
-    &.error {
-      color: darken($red, 12.5%);
+    // sneakyily hide the forward/back buttons during active install
+    &.progress-inactive {
+      z-index: 200;
     }
-  }
-
-  .ui.progress {
-    margin: 2rem auto 0;
-    min-width: 90%;
-    float: right;
-    background-color: transparent;
-
-    .label {
-      top: 0;
-      width: auto;
-      right: 0;
-      left: auto;
-      color: $navy;
+    &.progress-active {
+      z-index: 800;
     }
 
-    .bar {
-      margin-top: 0.425rem;
-      height: 0.75rem;
-      border-radius: 1rem;
-      background-image: linear-gradient(
-        to right,
-        $green,
-        $yellow,
-        $yellowl,
-        $bluel
-      );
-      @include transition;
+    .ui.button {
+      float: right;
+      min-height: 4rem;
+      position: absolute;
+      top: 1.5rem;
+      padding: 0;
+      font-size: $base-font;
 
-      &:after {
-        background: black;
+      &.secondary {
+        border: none;
+        left: 1.75rem;
+        padding: 0 1rem;
+      }
+
+      &.primary {
+        right: 1.75rem;
+        padding: 0 3.5rem;
       }
     }
 
-    &.success {
+    .ui.message,
+    .ui.label {
+      border: none;
+      background-color: transparent;
+      font-size: $base-sm;
+      font-family: $workbold;
+      text-align: center;
+      box-shadow: none;
+      padding: 0;
+      line-height: 1.2;
+      margin: 0.5rem auto 0;
+
+      &.error {
+        color: darken($red, 12.5%);
+      }
+    }
+
+    .ui.progress {
+      margin: 0 auto 0;
+      min-width: 90%;
+      float: right;
+      background-color: transparent;
+
       .label {
-        color: $green;
+        top: 0;
+        width: auto;
+        right: 0;
+        left: auto;
+        color: $navy;
       }
-      
+
       .bar {
+        margin-top: 0.425rem;
+        height: 0.75rem;
+        border-radius: 1rem;
         background-image: linear-gradient(
           to right,
+          $green,
+          $yellow,
           $yellowl,
-          $green
+          $bluel
         );
-      }
-    }
+        @include transition;
 
-    &.error {
-      .label {
-        color: $red;
+        &:after {
+          background: black;
+        }
       }
-      
-      .bar {
-        background-image: linear-gradient(
-          to right,
-          $yellowl,
-          $red
-        );
+
+      &.success {
+        .label {
+          color: $green;
+        }
+        
+        .bar {
+          background-image: linear-gradient(
+            to right,
+            $yellowl,
+            $green
+          );
+        }
+      }
+
+      &.error {
+        .label {
+          color: $red;
+        }
+        
+        .bar {
+          background-image: linear-gradient(
+            to right,
+            $yellowl,
+            $red
+          );
+        }
       }
     }
   }

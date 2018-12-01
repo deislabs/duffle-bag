@@ -170,17 +170,17 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   private progress(): JSX.Element {
     switch (this.state.installProgress) {
       case InstallProgress.NotStarted:
-        return (<Label>Installation not yet started</Label>);
+        return (<Step className="progress-inactive"><Label>Installation not yet started</Label></Step>);
       case InstallProgress.Starting:
-        return (<Progress percent={10} active>Starting install</Progress>);
+        return (<Step className="progress-active"><Progress percent={10} active>Starting install</Progress></Step>);
       case InstallProgress.Importing:
-        return (<Progress percent={30} active>Importing images</Progress>);
+        return (<Step className="progress-active"><Progress percent={30} active>Importing images</Progress></Step>);
       case InstallProgress.Installing:
-        return (<Progress percent={85} active>Installing</Progress>);
+        return (<Step className="progress-active"><Progress percent={85} active>Installing</Progress></Step>);
       case InstallProgress.Succeeded:
-        return (<Progress percent={85} success>Install complete</Progress>);
+        return (<Step className="progress-active"><Progress percent={85} success>Install complete</Progress></Step>);
       case InstallProgress.Failed:
-        return (<Progress percent={85} error>Install failed: {this.state.installResult}</Progress>);
+        return (<Step className="progress-active"><Progress percent={85} error>Install failed: {this.state.installResult}</Progress></Step>);
     }
   }
 
@@ -207,9 +207,11 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           </Segment>
           <Segment>
             <Step.Group>
-              <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+              <Step>
+                <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+                <Button primary right onClick={() => this.install()}>Install</Button>
+              </Step>
               {this.progress()}
-              <Button primary right onClick={() => this.install()}>Install</Button>
             </Step.Group>
           </Segment>
         </Form>

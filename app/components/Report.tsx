@@ -35,9 +35,11 @@ export default class Report extends React.Component<Properties, State, {}>  {
         </Segment>
         <Segment raised>
           <Step.Group>
-            <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
-            {this.postInstallPanel()}
-            {this.tryAgainButton()}
+            <Step>
+              <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+              {this.postInstallPanel()}
+              {this.tryAgainButton()}
+            </Step>
           </Step.Group>
         </Segment>
       </Container>

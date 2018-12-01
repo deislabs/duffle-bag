@@ -208,7 +208,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           <Segment>
             <Step.Group>
               <Step>
-                <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+                <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Back </Button>
                 <Button primary right onClick={() => this.install()}>Install</Button>
               </Step>
               {this.progress()}

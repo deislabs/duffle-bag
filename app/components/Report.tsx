@@ -35,9 +35,11 @@ export default class Report extends React.Component<Properties, State, {}>  {
         </Segment>
         <Segment raised>
           <Step.Group>
-            <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
-            {this.postInstallPanel()}
-            {this.tryAgainButton()}
+            <Step>
+              <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Cancel </Button>
+              {this.postInstallPanel()}
+              {this.tryAgainButton()}
+            </Step>
           </Step.Group>
         </Segment>
       </Container>
@@ -89,7 +91,7 @@ export default class Report extends React.Component<Properties, State, {}>  {
   }
 
   private goBack(): void {
-    this.props.parent.setState({ action: 'install', state: { bundleManifest: this.props.bundleManifest } });
+    this.props.parent.setState({ action: null });
   }
 
   private tryAgain(): void {

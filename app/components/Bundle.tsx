@@ -122,7 +122,9 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
 
         <Segment>
           <Step.Group>
-            {this.dufflePanel()}
+            <Step>
+              {this.dufflePanel()}
+            </Step>
           </Step.Group>
         </Segment>
 

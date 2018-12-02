@@ -1,5 +1,5 @@
 {
-  "name": "helloworld",
+  "name": "spline-reticulator",
   "version": "0.1.1",
   "invocationImages": [
       {
@@ -21,25 +21,25 @@
       "maxValue": 9999
     },
     "region": {
-      "defaultValue": "Wimbledon Common",
+      "defaultValue": "New Zealand South",
       "type": "string",
       "minLength": 4,
-      "maxLength": 20
+      "maxLength": 24
     },
-    "somebool": {
+    "public": {
       "type": "bool"
     },
-    "favouriteWomble": {
+    "reticulationMode": {
       "type": "string",
       "allowedValues": [
-        "Great Uncle Bulgaria",
-        "Orinoco",
-        "Madame Cholet",
-        "Tomsk"
+        "Reticulate only",
+        "Reticulate and frobnicate",
+        "Quantum reticulation",
+        "Quantum reticulation with bicategorical induction"
       ],
-      "defaultValue": "Orinoco",
+      "defaultValue": "Reticulate only",
       "metadata": {
-        "description": "Used when going underground, going overground and/or wombling free"
+        "description": "How to perform the reticulation. Quantum options require NIY (Not Invented Yet) processor at minimum."
       }
     }
   },

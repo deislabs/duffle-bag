@@ -208,7 +208,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
           <Segment>
             <Step.Group>
               <Step>
-                <Button secondary left onclick={() => this.goBack()}><Icon name="angle left"></Icon> Back </Button>
+                {this.goBackButton()}
                 <Button primary right onClick={() => this.install()}>Install</Button>
               </Step>
               {this.progress()}
@@ -217,6 +217,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         </Form>
       </Container>
     );
+  }
+
+  goBackButton(): JSX.Element | undefined {
+    return (<Button secondary left onClick={() => this.goBack()}><Icon name="angle left"></Icon> Back</Button>);
   }
 
   private installationNameValidityPanel(): JSX.Element[] {

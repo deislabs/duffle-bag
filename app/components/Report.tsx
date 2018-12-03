@@ -46,7 +46,7 @@ export default class Report extends React.Component<Properties, State, {}>  {
     );
   }
 
-  goBackButton(): JSX.Element | undefined {
+  goBackButton(): JSX.Element {
     return (<Button secondary left onClick={() => this.goBack()}><Icon name="angle left"></Icon> Back</Button>);
   }
 

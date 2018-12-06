@@ -5,6 +5,9 @@ export const fs = {
   // TODO: ES5 kicks up a fuss if we do this the easy way - but ES6 causes component
   // mount failures.  Goal is to move to ES6 (as this also unblocks iterators) but
   // that's not the focus right now.
+  chmod: promisify(
+    (path: string, mode: number, cb: (err: NodeJS.ErrnoException) => void) =>
+      sysfs.chmod(path, mode, cb)),
   // copyFile: promisify(sysfs.copyFile),
   exists: (path: string) => new Promise<boolean>((resolve, reject) => sysfs.exists(path, (e) => resolve(e))),
   // mkdir: promisify(sysfs.mkdir),

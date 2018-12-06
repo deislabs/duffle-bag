@@ -3,6 +3,7 @@ import * as path from 'path';
 import { Errorable, succeeded } from '../utils/errorable';
 import * as shell from '../utils/shell';
 import * as pairs from '../utils/pairs';
+import { fs } from './fs';
 
 export interface BinaryInfo {
   readonly path: string;
@@ -181,10 +182,15 @@ async function findDuffleBinaryCore(sh: shell.Shell): Promise<BinaryInfo | undef
   if (!process.resourcesPath) {
     return undefined;
   }
-  const binPath = path.join(process.resourcesPath, resourcePath);
-  const srr = await sh.exec(`${binPath} version`);
-  if (succeeded(srr) && srr.result.code === 0) {
-    return { path: binPath, version: srr.result.stdout.trim() };
+
+  const binFile = `${path.join(process.resourcesPath, resourcePath)}`;
+  if (await fs.exists(binFile)) {
+    await fs.chmod(binFile, 0o744);
+    const binPath = `"${binFile}"`;
+    const srr = await sh.exec(`${binPath} version`);
+    if (succeeded(srr) && srr.result.code === 0) {
+        return { path: binPath, version: srr.result.stdout.trim() };
+    }
   }
 
   // Give up

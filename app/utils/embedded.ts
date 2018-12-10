@@ -1,8 +1,10 @@
+import * as path from 'path';
 import * as request from 'request-promise-native';
 
 import { withTempFile, withBinaryTempFile } from "./tempfile";
 import { BundleManifest } from './duffle.objectmodel';
 import { failed, Errorable } from './errorable';
+import { fs } from './fs';
 import { extractTextFileFromTar } from './tar';
 
 interface LoadedBundle {
@@ -36,7 +38,20 @@ function loadCNAB(): string | undefined {
   }
 }
 
-function fullBundleURL(): string | undefined {
+async function fullBundleURL(): Promise<string | undefined> {
+  const relPath = 'data/bundle.tgz';
+
+  if (!process.resourcesPath) {
+    return undefined;
+  }
+
+  const fullPath = path.join(process.resourcesPath, relPath);
+  if (await fs.exists(fullPath)) {
+    return fullPath;
+  }
+
+  // TODO: make above work in dev environment - or make the following work
+  // in package environment
   try {
     return require('../../data/bundle.tgz');
   } catch {
@@ -45,7 +60,7 @@ function fullBundleURL(): string | undefined {
 }
 
 async function loadFullBundle(): Promise<{} | undefined> {
-  const bundleUrl = fullBundleURL();
+  const bundleUrl = await fullBundleURL();
   if (!bundleUrl) {
     return undefined;
   }
@@ -53,8 +68,8 @@ async function loadFullBundle(): Promise<{} | undefined> {
   return bundleContent;
 }
 
-export function hasFullBundle(): boolean {
-  const url = fullBundleURL();
+export async function hasFullBundle(): Promise<boolean> {
+  const url = await fullBundleURL();
   return url !== undefined && url.length > 0;
 }
 

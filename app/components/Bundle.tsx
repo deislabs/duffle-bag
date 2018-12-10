@@ -49,7 +49,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     const embeddedBundle = await embedded.bundle;
     const duffleBin = await findDuffleBinary(shell);
     const bundleManifest = map(embeddedBundle, (b) => b.manifest);
-    const hasFullBundle = embedded.hasFullBundle();
+    const hasFullBundle = await embedded.hasFullBundle();
     this.setState({
       bundleManifest: { ready: true, result: bundleManifest },
       duffle: { ready: true, result: duffleBin },

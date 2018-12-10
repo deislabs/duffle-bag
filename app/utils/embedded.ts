@@ -64,8 +64,13 @@ async function loadFullBundle(): Promise<{} | undefined> {
   if (!bundleUrl) {
     return undefined;
   }
-  const bundleContent = await request.get(bundleUrl, { encoding: null });
-  return bundleContent;
+  if (bundleUrl.startsWith('http')) {
+    const bundleContent = await request.get(bundleUrl, { encoding: null });
+    return bundleContent;
+  } else {
+    const bundleContent = await fs.readFile(bundleUrl);
+    return bundleContent;
+  }
 }
 
 export async function hasFullBundle(): Promise<boolean> {

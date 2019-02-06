@@ -12,7 +12,7 @@ still want to do it manually if you need to upgrade the embedded Duffle binaries
 
 # Creating an installer
 
-The easiest way to create an installer from this template is to use the duffle-cost
+The easiest way to create an installer from this template is to use the [duffle-coat](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.duffle-coat)
 extension for VS Code.  Right-click a bundle and choose `Generate Self-Installer`.
 
 To hand author an installer, copy the templatem and copy your bundle (`bundle.json`,

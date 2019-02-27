@@ -105,11 +105,11 @@ export async function pushFile(sh: shell.Shell, filePath: string, repo: string):
 }
 
 export async function installFile(sh: shell.Shell, bundleFilePath: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-    return await invokeObj(sh, 'install', `${name} --insecure -f "${bundleFilePath}" ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
+  return await invokeObj(sh, 'install', `${name} "${bundleFilePath}" -f ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
 }
 
 export async function installBundle(sh: shell.Shell, bundleName: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-    return await invokeObj(sh, 'install', `${name} ${bundleName} --insecure ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
+  return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
 }
 
 export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promise<Errorable<SignatureVerification>> {

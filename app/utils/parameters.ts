@@ -1,16 +1,21 @@
-import { ParameterDefinition, BundleManifest } from "./duffle.objectmodel";
+import * as cnab from 'cnabjs';
 import { byName } from "./sort-orders";
 
-export interface NamedParameterDefinition extends ParameterDefinition {
+export interface ParameterDefinition extends cnab.Parameter {
     readonly name: string;
+    readonly schema: cnab.Definition;
 }
 
-export function parseParameters(json: BundleManifest): NamedParameterDefinition[] {
+export function parseParameters(json: cnab.Bundle): ReadonlyArray<ParameterDefinition> {
     const parameters = json.parameters;
-    const defs: NamedParameterDefinition[] = [];
+    const schemas = json.definitions;
+    if (!parameters || !schemas) {
+      return [];
+    }
+    const defs = Array.of<ParameterDefinition>();
     if (parameters) {
         for (const k in parameters) {
-            defs.push({ name: k, ...parameters[k] });
+            defs.push({ name: k, schema: schemas[parameters[k].definition], ...parameters[k] });
         }
     }
     defs.sort(byName);

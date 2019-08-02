@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { Container, Segment, Header } from 'semantic-ui-react';
+import * as cnab from 'cnabjs';
 
 import Bundle from './Bundle';
 import Installer from './Installer';
 import Report from './Report';
 
 import { Actionable } from './contract';
-import { BundleManifest } from '../utils/duffle.objectmodel';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable, map } from '../utils/errorable';
 import { Eventually, pending } from '../utils/eventually';
 
 interface State {
-  readonly bundleManifest: Eventually<Errorable<BundleManifest>>;
+  readonly bundleManifest: Eventually<Errorable<cnab.Bundle>>;
 }
 
 export default class Home extends React.Component<{}, Actionable & State, {}> {

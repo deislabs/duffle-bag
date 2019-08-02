@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Button, Container, Header, Message, Segment, Step, Icon } from 'semantic-ui-react';
+import * as cnab from 'cnabjs';
 
 import { Actionable } from './contract';
-import { BundleManifest } from '../utils/duffle.objectmodel';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
-  readonly bundleManifest: BundleManifest;
+  readonly bundleManifest: cnab.Bundle;
   readonly succeeded: boolean;
   readonly output: string;
   readonly error: string;

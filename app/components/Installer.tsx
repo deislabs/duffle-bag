@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Message } from 'semantic-ui-react';
 import * as cnab from 'cnabjs';
-import * as ajv from 'ajv';
 
 import { Actionable } from './contract';
 import { parseParameters, ParameterDefinition } from '../utils/parameters';
@@ -28,22 +27,8 @@ enum InstallProgress {
   Failed
 }
 
-interface Validity {
-  readonly isValid: boolean;
-  readonly reason: string;
-}
-
 class ParameterValue {
-  constructor(readonly definition: ParameterDefinition, readonly text: string) {}
-
-  get validity(): Validity {
-    // TODO: embetter
-    const validator: ajv.Ajv = ajv();
-    const validate = validator.compile(this.definition.schema);
-    const isValid = !!(validate(this.text));  // we are not using async validation so squish away any PromiseLikes
-    const reason = validate.errors ? validate.errors.map((eo) => eo.message).join(', ') : '';
-    return { isValid, reason };
-  }
+  constructor(readonly parameter: string, readonly text: string) {}
 }
 
 interface State {
@@ -58,14 +43,16 @@ interface State {
 export default class Installer extends React.Component<Properties, State, {}>  {
   private readonly parameterDefinitions: ReadonlyArray<ParameterDefinition>;
   private readonly credentials: ReadonlyArray<NamedCredential>;
+  private readonly validator: cnab.BundleParameterValidator;
 
   constructor(props: Readonly<Properties>) {
     super(props);
 
     this.parameterDefinitions = parseParameters(this.props.bundleManifest);
     this.credentials = parseCredentials(this.props.bundleManifest);
+    this.validator = cnab.Validator.for(this.props.bundleManifest);
 
-    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd, (pd.schema.default || '').toString()) }));
+    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd.name, (pd.schema.default || '').toString()) }));
     const ipvObj: { [key: string]: ParameterValue } = Object.assign({}, ...initialParameterValues);
     const initialCredentialValues = this.credentials.map((c) => this.initialCredential(c));
     const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
@@ -95,15 +82,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
-    const definition = this.state.parameterValues[c.name].definition;
-    const newValue = new ParameterValue(definition, c.value);
+    const newValue = new ParameterValue(c.name, c.value);
     const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
 
   private handleSelectChange(e: any, c: DropdownProps/* & {name: keyof State}*/) {
-    const definition = this.state.parameterValues[c.name].definition;
-    const newValue = new ParameterValue(definition, c.value as string);
+    const newValue = new ParameterValue(c.name, c.value as string);
     const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
@@ -232,12 +217,14 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
-    const validationMessage = this.state.parameterValues[pd.name].validity.isValid ?
+    const parameterValue = this.state.parameterValues[pd.name];
+    const validity = this.validator.validateText(parameterValue.parameter, parameterValue.text);
+    const validationMessage = validity.isValid ?
       undefined :
-      (<Message>{this.state.parameterValues[pd.name].validity.reason}</Message>);
+      (<Message>{validity.reason}</Message>);
     return (
       <Form.Group inline>
-        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name].text} error={!this.state.parameterValues[pd.name].validity.isValid} onChange={this.handleInputChange} />
+        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} error={!validity.isValid} onChange={this.handleInputChange} />
         {validationMessage}
       </Form.Group>);
   }

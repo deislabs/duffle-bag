@@ -48,7 +48,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   constructor(props: Readonly<Properties>) {
     super(props);
 
-    this.parameterDefinitions = parseParameters(this.props.bundleManifest);
+    this.parameterDefinitions = parseParameters(this.props.bundleManifest, 'install');
     this.credentials = parseCredentials(this.props.bundleManifest);
     this.validator = cnab.Validator.forBundle(this.props.bundleManifest);
 

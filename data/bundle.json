@@ -46,13 +46,19 @@
       "definition": "port",
       "destination": {}
     },
+    "disconnectionPort": {
+      "definition": "port",
+      "destination": {},
+      "applyTo": ["uninstall"]
+    },
     "region": {
       "definition": "region",
       "destination": {}
     },
     "public": {
       "definition": "bool",
-      "destination": {}
+      "destination": {},
+      "applyTo": ["install", "update"]
     },
     "reticulationMode": {
       "definition": "reticulationMode",

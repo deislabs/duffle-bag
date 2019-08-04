@@ -50,7 +50,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
     this.parameterDefinitions = parseParameters(this.props.bundleManifest);
     this.credentials = parseCredentials(this.props.bundleManifest);
-    this.validator = cnab.Validator.for(this.props.bundleManifest);
+    this.validator = cnab.Validator.forBundle(this.props.bundleManifest);
 
     const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd.name, (pd.schema.default || '').toString()) }));
     const ipvObj: { [key: string]: ParameterValue } = Object.assign({}, ...initialParameterValues);

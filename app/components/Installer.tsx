@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Container, Form, Header, Button, Icon, Step, InputOnChangeData, Segment, Label, DropdownProps, Progress, Message } from 'semantic-ui-react';
+import * as cnab from 'cnabjs';
 
 import { Actionable } from './contract';
-import { parseParameters, NamedParameterDefinition } from '../utils/parameters';
-import { BundleCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
+import { parseParameters, ParameterDefinition } from '../utils/parameters';
+import { NamedCredential, parseCredentials, CredentialSetEntry, credentialsYAML } from '../utils/credentials';
 import * as duffle from '../utils/duffle';
 import * as shell from '../utils/shell';
 import { failed, succeeded, map } from '../utils/errorable';
@@ -11,11 +12,10 @@ import * as embedded from '../utils/embedded';
 import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
 import { project } from '../utils/projection';
-import { BundleManifest } from '../utils/duffle.objectmodel';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
-  readonly bundleManifest: BundleManifest;
+  readonly bundleManifest: cnab.Bundle;
 }
 
 enum InstallProgress {
@@ -27,42 +27,8 @@ enum InstallProgress {
   Failed
 }
 
-interface Validity {
-  readonly isValid: boolean;
-  readonly reason: string;
-}
-
 class ParameterValue {
-  constructor(readonly definition: NamedParameterDefinition, readonly text: string) {}
-
-  get validity(): Validity {
-    // TODO: embetter
-    if (this.definition.type === 'int') {
-      const nval = Number.parseInt(this.text);  // TODO: this lets through text that *begins* with any digit
-      if (isNaN(nval)) {
-        return { isValid: false, reason: 'Must be a number' };
-      }
-      if (this.definition.minValue !== undefined && nval < this.definition.minValue) {
-        return { isValid: false, reason: `Must be at least ${this.definition.minValue}` };
-      }
-      if (this.definition.maxValue !== undefined && nval > this.definition.maxValue) {
-        return { isValid: false, reason: `Must be at most ${this.definition.maxValue}` };
-      }
-    }
-    if (this.definition.type === 'string') {
-      const length = this.text.length;
-      if (length === undefined) {
-        return { isValid: false, reason: 'Must be a string' };
-      }
-      if (this.definition.minLength !== undefined && length < this.definition.minLength) {
-        return { isValid: false, reason: `Must be at least ${this.definition.minLength} characters` };
-      }
-      if (this.definition.maxLength !== undefined && length > this.definition.maxLength) {
-        return { isValid: false, reason: `Must be at most ${this.definition.maxLength} characters` };
-      }
-    }
-    return { isValid: true, reason: '' };
-  }
+  constructor(readonly parameter: string, readonly text: string) {}
 }
 
 interface State {
@@ -75,16 +41,18 @@ interface State {
 }
 
 export default class Installer extends React.Component<Properties, State, {}>  {
-  private readonly parameterDefinitions: NamedParameterDefinition[];
-  private readonly credentials: BundleCredential[];
+  private readonly parameterDefinitions: ReadonlyArray<ParameterDefinition>;
+  private readonly credentials: ReadonlyArray<NamedCredential>;
+  private readonly validator: cnab.BundleParameterValidator;
 
   constructor(props: Readonly<Properties>) {
     super(props);
 
-    this.parameterDefinitions = parseParameters(this.props.bundleManifest);
+    this.parameterDefinitions = parseParameters(this.props.bundleManifest, 'install');
     this.credentials = parseCredentials(this.props.bundleManifest);
+    this.validator = cnab.Validator.forBundle(this.props.bundleManifest);
 
-    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd, (pd.defaultValue || '').toString()) }));
+    const initialParameterValues = this.parameterDefinitions.map((pd) => ({ [pd.name]: new ParameterValue(pd.name, (pd.schema.default || '').toString()) }));
     const ipvObj: { [key: string]: ParameterValue } = Object.assign({}, ...initialParameterValues);
     const initialCredentialValues = this.credentials.map((c) => this.initialCredential(c));
     const icvObj: { [key: string]: CredentialSetEntry } = Object.assign({}, ...initialCredentialValues);
@@ -114,15 +82,13 @@ export default class Installer extends React.Component<Properties, State, {}>  {
   }
 
   private handleInputChange(e: any, c: InputOnChangeData/* & {name: keyof State}*/) {
-    const definition = this.state.parameterValues[c.name].definition;
-    const newValue = new ParameterValue(definition, c.value);
+    const newValue = new ParameterValue(c.name, c.value);
     const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
 
   private handleSelectChange(e: any, c: DropdownProps/* & {name: keyof State}*/) {
-    const definition = this.state.parameterValues[c.name].definition;
-    const newValue = new ParameterValue(definition, c.value as string);
+    const newValue = new ParameterValue(c.name, c.value as string);
     const parameterValues = Object.assign({}, this.state.parameterValues, { [c.name]: newValue });
     this.setState({ parameterValues: parameterValues });
   }
@@ -143,7 +109,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     this.setState({ credentialValues: credentialValues });
   }
 
-  private initialCredential(credential: BundleCredential): { [key: string]: CredentialSetEntry } {
+  private initialCredential(credential: NamedCredential): { [key: string]: CredentialSetEntry } {
     const destKind = credential.env ? 'env' : 'path';
     const destRef = credential.env || credential.path || '';
     return {
@@ -227,7 +193,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     if (this.state.installationNameExists === undefined) {
       return [(<Message info>Checking installation name...</Message>)];
     }
-    if (this.state.installationNameExists === true) {
+    if (this.state.installationNameExists) {
       return [(<Message>Name in use</Message>)];  // TODO: for some reason the 'error' option causes it not to show... ETA: it's because error blocks are shown only when the *form* is in an error state
     }
     return [];
@@ -240,33 +206,35 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.parameterDefinitions.map((pd) => this.inputWidget(pd));
   }
 
-  private inputWidget(pd: NamedParameterDefinition): JSX.Element {
-    if (pd.type === "bool") {
+  private inputWidget(pd: ParameterDefinition): JSX.Element {
+    if (pd.schema.type === 'boolean') {
       return this.boolInputWidget(pd);
     }
-    if (pd.allowedValues && pd.allowedValues.length > 0) {
+    if (pd.schema.enum && pd.schema.enum.length > 0) {
       return this.selectInputWidget(pd);
     }
     return this.freeformInputWidget(pd);
   }
 
-  private freeformInputWidget(pd: NamedParameterDefinition): JSX.Element {
-    const validationMessage = this.state.parameterValues[pd.name].validity.isValid ?
+  private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
+    const parameterValue = this.state.parameterValues[pd.name];
+    const validity = this.validator.validateText(parameterValue.parameter, parameterValue.text);
+    const validationMessage = validity.isValid ?
       undefined :
-      (<Message>{this.state.parameterValues[pd.name].validity.reason}</Message>);
+      (<Message>{validity.reason}</Message>);
     return (
       <Form.Group inline>
-        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={this.state.parameterValues[pd.name].text} error={!this.state.parameterValues[pd.name].validity.isValid} onChange={this.handleInputChange} />
+        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} error={!validity.isValid} onChange={this.handleInputChange} />
         {validationMessage}
       </Form.Group>);
   }
 
-  private selectInputWidget(pd: NamedParameterDefinition): JSX.Element {
-    const opts = pd.allowedValues!.map((v) => ({ text: v.toString(), value: v.toString() }));
+  private selectInputWidget(pd: ParameterDefinition): JSX.Element {
+    const opts = pd.schema.enum!.map((v) => ({ text: v.toString(), value: v.toString() }));
     return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
 
-  private boolInputWidget(pd: NamedParameterDefinition): JSX.Element {
+  private boolInputWidget(pd: ParameterDefinition): JSX.Element {
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
     return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
   }
@@ -284,7 +252,7 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private readonly credentialSourceKinds: CredentialSetEntry['kind'][] = ['value', 'env', 'path', 'command'];
 
-  private credentialWidget(credential: BundleCredential): JSX.Element {
+  private credentialWidget(credential: NamedCredential): JSX.Element {
     // TODO: form items should have unique names - unfortunately the change handlers currently
     // use the sender name to key into the credentials object so probably better to change them
     // to use key or something instead

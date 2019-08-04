@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Container, Card, Header, Message, Step, Segment, Image } from 'semantic-ui-react';
+import * as cnab from 'cnabjs';
 
 import { Actionable } from './contract';
 import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable, map, succeeded } from '../utils/errorable';
-import { BundleManifest } from '../utils/duffle.objectmodel';
 import { Eventually, pending } from '../utils/eventually';
 
 interface Properties {
@@ -14,7 +14,7 @@ interface Properties {
 }
 
 interface State {
-  bundleManifest: Eventually<Errorable<BundleManifest>>;
+  bundleManifest: Eventually<Errorable<cnab.Bundle>>;
   duffle: Eventually<BinaryInfo | undefined>;
   signingStatus: VerificationUI;
   hasFullBundle: boolean | undefined;
@@ -77,13 +77,13 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
           <Header sub>
             <strong>{this.bundleVersion()} &nbsp;</strong> &mdash; {this.thicknessPanel()}.
           </Header>
-          
+
           <Header sub>{this.signaturePanel()}</Header>
           <hr />
           <Header sub>{descPanel.location === 'header' ? descPanel.content : ''}</Header>
           <Header sub>{descPanel.location === 'segment' ? descPanel.content : ''}</Header>
         </Segment>
-        
+
         <Card.Group>
           <Card onClick={() => this.install()}>
             <Card.Content>

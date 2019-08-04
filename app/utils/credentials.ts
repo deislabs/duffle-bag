@@ -1,4 +1,5 @@
-import { BundleManifest } from "./duffle.objectmodel";
+import * as cnab from 'cnabjs';
+
 import { byName } from "./sort-orders";
 
 export interface CredentialLocation {
@@ -6,7 +7,7 @@ export interface CredentialLocation {
   readonly path?: string;
 }
 
-export interface BundleCredential extends CredentialLocation {
+export interface NamedCredential extends cnab.Credential {
   readonly name: string;
 }
 
@@ -17,14 +18,14 @@ export interface CredentialSetEntry {
   readonly value: string;
 }
 
-export function hasCredentials(manifest: BundleManifest): boolean {
+export function hasCredentials(manifest: cnab.Bundle): boolean {
     const credentials = manifest.credentials || {};
     return Object.keys(credentials).length > 0;
 }
 
-export function parseCredentials(manifest: any): BundleCredential[] {
+export function parseCredentials(manifest: cnab.Bundle): ReadonlyArray<NamedCredential> {
   const credentials = manifest.credentials;
-  const bcs: BundleCredential[] = [];
+  const bcs: NamedCredential[] = [];
   if (credentials) {
       for (const k in credentials) {
           bcs.push({ name: k, ...credentials[k] });

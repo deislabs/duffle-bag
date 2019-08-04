@@ -1,6 +1,7 @@
 {
   "name": "spline-reticulator",
   "version": "0.1.1",
+  "schemaVersion": "v1.0.0-WD",
   "invocationImages": [
       {
         "imageType": "docker",
@@ -13,34 +14,56 @@
       "image": "busybox"
     }
   },
-  "parameters": {
+  "definitions": {
+    "bool": {
+      "type": "boolean"
+    },
     "port": {
-      "defaultValue": 8080,
-      "type": "int",
-      "minValue": 1000,
-      "maxValue": 9999
+      "type": "integer",
+      "default": 8080,
+      "minimum": 1000,
+      "maximum": 9999
     },
     "region": {
-      "defaultValue": "New Zealand South",
       "type": "string",
+      "default": "New Zealand South",
       "minLength": 4,
       "maxLength": 24
     },
-    "public": {
-      "type": "bool"
-    },
     "reticulationMode": {
       "type": "string",
-      "allowedValues": [
+      "enum": [
         "Reticulate only",
         "Reticulate and frobnicate",
         "Quantum reticulation",
         "Quantum reticulation with bicategorical induction"
       ],
-      "defaultValue": "Reticulate only",
-      "metadata": {
-        "description": "How to perform the reticulation. Quantum options require NIY (Not Invented Yet) processor at minimum."
-      }
+      "defaultValue": "Reticulate only"
+    }
+  },
+  "parameters": {
+    "port": {
+      "definition": "port",
+      "destination": {}
+    },
+    "disconnectionPort": {
+      "definition": "port",
+      "destination": {},
+      "applyTo": ["uninstall"]
+    },
+    "region": {
+      "definition": "region",
+      "destination": {}
+    },
+    "public": {
+      "definition": "bool",
+      "destination": {},
+      "applyTo": ["install", "update"]
+    },
+    "reticulationMode": {
+      "definition": "reticulationMode",
+      "destination": {},
+      "description": "How to perform the reticulation. Quantum options require NIY (Not Invented Yet) processor at minimum."
     }
   },
   "credentials": {

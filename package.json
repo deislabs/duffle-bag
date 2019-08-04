@@ -195,6 +195,8 @@
     "@fortawesome/fontawesome-free": "^5.2.0",
     "@types/shelljs": "^0.8.0",
     "@types/tmp": "0.0.33",
+    "ajv": "^6.10.2",
+    "cnabjs": "0.0.3",
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
     "font-work-sans": "^1.0.3",

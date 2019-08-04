@@ -1,14 +1,14 @@
 import * as path from 'path';
 import * as request from 'request-promise-native';
+import * as cnab from 'cnabjs';
 
 import { withTempFile, withBinaryTempFile } from "./tempfile";
-import { BundleManifest } from './duffle.objectmodel';
 import { failed, Errorable } from './errorable';
 import { fs } from './fs';
 import { extractTextFileFromTar } from './tar';
 
 interface LoadedBundle {
-  readonly manifest: BundleManifest;
+  readonly manifest: cnab.Bundle;
   readonly signedText: string | undefined;
 }
 
@@ -22,7 +22,7 @@ async function requireLoadedBundle(): Promise<LoadedBundle> {
   return b.result;
 }
 
-function loadJSONManifest(): BundleManifest | undefined {
+function loadJSONManifest(): cnab.Bundle | undefined {
   try {
     return require('../../data/bundle.json');
   } catch {
@@ -143,7 +143,7 @@ async function loadBundleFromFullBundleFile(bundleFilePath: string): Promise<Err
   return { succeeded: false, error: ['Full bundle does not contain a CNAB manifest'] };
 }
 
-function extractManifest(source: string): BundleManifest {
+function extractManifest(source: string): cnab.Bundle {
   const json = jsonOnly(source);
   return JSON.parse(json);
 }

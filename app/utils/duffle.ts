@@ -105,15 +105,15 @@ export async function pushFile(sh: shell.Shell, filePath: string, repo: string):
 }
 
 export async function installFile(sh: shell.Shell, bundleFilePath: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-  return await invokeObj(sh, 'install', `${name} "${bundleFilePath}" -f ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
+  return await invokeObj(sh, 'install', `${name} "${bundleFilePath}" -f ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
 }
 
 export async function installBundle(sh: shell.Shell, bundleName: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-  return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
+  return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
 }
 
 export async function importFile(sh: shell.Shell, sourceFile: string, destinationDirectory: string): Promise<Errorable<null>> {
-    return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory} --insecure`, {}, (s) => null);
+    return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory}`, {}, (s) => null);
 }
 
 function paramsArgs(parameters: { [key: string]: string }): string {

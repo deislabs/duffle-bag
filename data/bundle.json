@@ -39,7 +39,7 @@
         "Quantum reticulation",
         "Quantum reticulation with bicategorical induction"
       ],
-      "defaultValue": "Reticulate only"
+      "default": "Reticulate only"
     }
   },
   "parameters": {

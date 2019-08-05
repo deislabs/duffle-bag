@@ -3,7 +3,7 @@ import { Container, Card, Header, Message, Step, Segment, Image } from 'semantic
 import * as cnab from 'cnabjs';
 
 import { Actionable } from './contract';
-import { findDuffleBinary, BinaryInfo, verifyFile, SignatureVerification } from '../utils/duffle';
+import { findDuffleBinary, BinaryInfo, SignatureVerification } from '../utils/duffle';
 import { shell } from '../utils/shell';
 import * as embedded from '../utils/embedded';
 import { failed, Errorable, map, succeeded } from '../utils/errorable';
@@ -58,8 +58,7 @@ export default class Bundle extends React.Component<Properties, State, {}>  {
     if (duffleBin && succeeded(bundleManifest)) {
       const verifyResult = await embedded.withBundleFile(async (tempFile, isSigned) => {
         if (isSigned) {
-          const r = await verifyFile(shell, tempFile);
-          return this.signingStatus(r);
+          return this.signingStatus({ succeeded: false, error: ['Signature format is no longer supported'] });
         }
         return { display: SigningStatus.Unsigned, text: 'This bundle is not digitally signed.' };
       });

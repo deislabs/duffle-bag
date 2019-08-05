@@ -112,16 +112,6 @@ export async function installBundle(sh: shell.Shell, bundleName: string, name: s
   return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
 }
 
-export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promise<Errorable<SignatureVerification>> {
-    function parse(sr: shell.ShellResult): Errorable<SignatureVerification> {
-      if (sr.code === 0) {
-          return { succeeded: true, result: { verified: true, signer: sr.stdout.trim(), reason: '' } };
-      }
-      return { succeeded: true, result: { verified: false, signer: '', reason: sr.stderr.trim() } };
-    }
-    return await invokeObjFromSR(sh, 'bundle verify', `-f ${bundleFilePath}`, {}, parse);
-}
-
 export async function importFile(sh: shell.Shell, sourceFile: string, destinationDirectory: string): Promise<Errorable<null>> {
     return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory} --insecure`, {}, (s) => null);
 }

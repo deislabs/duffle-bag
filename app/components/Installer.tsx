@@ -12,6 +12,7 @@ import * as embedded from '../utils/embedded';
 import { withOptionalTempFile, withTempDirectory } from '../utils/tempfile';
 import { cantHappen } from '../utils/never';
 import { project } from '../utils/projection';
+import { flatten } from '../utils/array';
 
 interface Properties {
   readonly parent: React.Component<any, Actionable, any>;
@@ -203,10 +204,18 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     if (!this.parameterDefinitions || this.parameterDefinitions.length === 0) {
       return [ (<Label>This bundle does not require any parameters</Label>) ];
     }
-    return this.parameterDefinitions.map((pd) => this.inputWidget(pd));
+    return flatten(this.parameterDefinitions.map((pd) => this.inputWidget(pd)));
   }
 
-  private inputWidget(pd: ParameterDefinition): JSX.Element {
+  private inputWidget(pd: ParameterDefinition): JSX.Element[] {
+  const description = pd.description ? [<p>{pd.description}</p>] : [];
+    return [
+      ...this.inputWidgetOnly(pd),
+      ...description
+    ];
+  }
+
+  private inputWidgetOnly(pd: ParameterDefinition): JSX.Element[] {
     if (pd.schema.type === 'boolean') {
       return this.boolInputWidget(pd);
     }
@@ -216,27 +225,26 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     return this.freeformInputWidget(pd);
   }
 
-  private freeformInputWidget(pd: ParameterDefinition): JSX.Element {
+  private freeformInputWidget(pd: ParameterDefinition): JSX.Element[] {
     const parameterValue = this.state.parameterValues[pd.name];
     const validity = this.validator.validateText(parameterValue.parameter, parameterValue.text);
     const validationMessage = validity.isValid ?
-      undefined :
-      (<Message>{validity.reason}</Message>);
-    return (
-      <Form.Group inline>
-        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} error={!validity.isValid} onChange={this.handleInputChange} />
-        {validationMessage}
-      </Form.Group>);
+      [] :
+      [<Message>{validity.reason}</Message>];
+    return [
+        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} error={!validity.isValid} onChange={this.handleInputChange} />,
+        ...validationMessage
+    ];
   }
 
-  private selectInputWidget(pd: ParameterDefinition): JSX.Element {
+  private selectInputWidget(pd: ParameterDefinition): JSX.Element[] {
     const opts = pd.schema.enum!.map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
+    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />];
   }
 
-  private boolInputWidget(pd: ParameterDefinition): JSX.Element {
+  private boolInputWidget(pd: ParameterDefinition): JSX.Element[] {
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
-    return (<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />);
+    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />];
   }
 
   private credentialsUI(): JSX.Element[] {

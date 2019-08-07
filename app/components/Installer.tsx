@@ -227,24 +227,27 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private freeformInputWidget(pd: ParameterDefinition): JSX.Element[] {
     const parameterValue = this.state.parameterValues[pd.name];
+    const isRequired = cnab.Parameters.isRequired(this.props.bundleManifest, pd.name);
     const validity = this.validator.validateText(parameterValue.parameter, parameterValue.text);
     const validationMessage = validity.isValid ?
       [] :
       [<Message>{validity.reason}</Message>];
     return [
-        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} error={!validity.isValid} onChange={this.handleInputChange} />,
+        <Form.Input inline key={pd.name} name={pd.name} label={pd.name} type="text" value={parameterValue.text} required={isRequired} error={!validity.isValid} onChange={this.handleInputChange} />,
         ...validationMessage
     ];
   }
 
   private selectInputWidget(pd: ParameterDefinition): JSX.Element[] {
+    const isRequired = cnab.Parameters.isRequired(this.props.bundleManifest, pd.name);
     const opts = pd.schema.enum!.map((v) => ({ text: v.toString(), value: v.toString() }));
-    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />];
+    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} required={isRequired} onChange={this.handleSelectChange} />];
   }
 
   private boolInputWidget(pd: ParameterDefinition): JSX.Element[] {
+    const isRequired = cnab.Parameters.isRequired(this.props.bundleManifest, pd.name);
     const opts = [true, false].map((v) => ({ text: v.toString(), value: v.toString() }));
-    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} onChange={this.handleSelectChange} />];
+    return [<Form.Select inline key={pd.name} name={pd.name} label={pd.name} options={opts} value={this.state.parameterValues[pd.name].text} required={isRequired} onChange={this.handleSelectChange} />];
   }
 
   private credentialsUI(): JSX.Element[] {

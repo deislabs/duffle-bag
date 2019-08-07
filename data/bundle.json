@@ -44,7 +44,8 @@
   "parameters": {
     "port": {
       "definition": "port",
-      "destination": {}
+      "destination": {},
+      "required": true
     },
     "disconnectionPort": {
       "definition": "port",
@@ -58,7 +59,8 @@
     "public": {
       "definition": "bool",
       "destination": {},
-      "applyTo": ["install", "update"]
+      "applyTo": ["install", "update"],
+      "required": true
     },
     "reticulationMode": {
       "definition": "reticulationMode",

@@ -16,7 +16,7 @@
     }
   },
   "definitions": {
-    "bool": {
+    "makePublic": {
       "type": "boolean"
     },
     "port": {
@@ -57,8 +57,8 @@
       "definition": "region",
       "destination": {}
     },
-    "public": {
-      "definition": "bool",
+    "makePublic": {
+      "definition": "makePublic",
       "destination": {},
       "applyTo": ["install", "update"],
       "required": true

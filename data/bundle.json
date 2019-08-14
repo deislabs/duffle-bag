@@ -2,6 +2,7 @@
   "name": "spline-reticulator",
   "version": "0.1.1",
   "schemaVersion": "v1.0.0-WD",
+  "description": "test description",
   "invocationImages": [
       {
         "imageType": "docker",
@@ -15,7 +16,7 @@
     }
   },
   "definitions": {
-    "bool": {
+    "b": {
       "type": "boolean"
     },
     "port": {
@@ -38,33 +39,33 @@
         "Quantum reticulation",
         "Quantum reticulation with bicategorical induction"
       ],
-      "defaultValue": "Reticulate only"
+      "default": "Reticulate only"
     }
   },
   "parameters": {
     "port": {
       "definition": "port",
-      "destination": {},
+      "destination": { "env": "INSTALL_PORT" },
       "required": true
     },
     "disconnectionPort": {
       "definition": "port",
-      "destination": {},
+      "destination": { "env": "DISCO_PORT" },
       "applyTo": ["uninstall"]
     },
     "region": {
       "definition": "region",
-      "destination": {}
+      "destination": { "env": "INSTALL_REGION" }
     },
-    "public": {
-      "definition": "bool",
-      "destination": {},
+    "makePublic": {
+      "definition": "b",
+      "destination": { "env": "MAKE_PUBLIC" },
       "applyTo": ["install", "update"],
       "required": true
     },
     "reticulationMode": {
       "definition": "reticulationMode",
-      "destination": {},
+      "destination": { "env": "RETICULATION_MODE" },
       "description": "How to perform the reticulation. Quantum options require NIY (Not Invented Yet) processor at minimum."
     }
   },

@@ -105,25 +105,15 @@ export async function pushFile(sh: shell.Shell, filePath: string, repo: string):
 }
 
 export async function installFile(sh: shell.Shell, bundleFilePath: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-  return await invokeObj(sh, 'install', `${name} "${bundleFilePath}" -f ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
+  return await invokeObj(sh, 'install', `${name} "${bundleFilePath}" -f ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
 }
 
 export async function installBundle(sh: shell.Shell, bundleName: string, name: string, params: { [key: string]: string }, credentialSet: string | undefined): Promise<Errorable<string>> {
-  return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)} --insecure`, {}, (s) => s);
-}
-
-export async function verifyFile(sh: shell.Shell, bundleFilePath: string): Promise<Errorable<SignatureVerification>> {
-    function parse(sr: shell.ShellResult): Errorable<SignatureVerification> {
-      if (sr.code === 0) {
-          return { succeeded: true, result: { verified: true, signer: sr.stdout.trim(), reason: '' } };
-      }
-      return { succeeded: true, result: { verified: false, signer: '', reason: sr.stderr.trim() } };
-    }
-    return await invokeObjFromSR(sh, 'bundle verify', `-f ${bundleFilePath}`, {}, parse);
+  return await invokeObj(sh, 'install', `${name} ${bundleName} ${paramsArgs(params)} ${credentialArg(credentialSet)}`, {}, (s) => s);
 }
 
 export async function importFile(sh: shell.Shell, sourceFile: string, destinationDirectory: string): Promise<Errorable<null>> {
-    return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory} --insecure`, {}, (s) => null);
+    return await invokeObj(sh, 'import', `"${sourceFile}" -d ${destinationDirectory}`, {}, (s) => null);
 }
 
 function paramsArgs(parameters: { [key: string]: string }): string {

@@ -16,7 +16,7 @@
     }
   },
   "definitions": {
-    "makePublic": {
+    "b": {
       "type": "boolean"
     },
     "port": {
@@ -45,27 +45,27 @@
   "parameters": {
     "port": {
       "definition": "port",
-      "destination": {},
+      "destination": { "env": "INSTALL_PORT" },
       "required": true
     },
     "disconnectionPort": {
       "definition": "port",
-      "destination": {},
+      "destination": { "env": "DISCO_PORT" },
       "applyTo": ["uninstall"]
     },
     "region": {
       "definition": "region",
-      "destination": {}
+      "destination": { "env": "INSTALL_REGION" }
     },
     "makePublic": {
-      "definition": "makePublic",
-      "destination": {},
+      "definition": "b",
+      "destination": { "env": "MAKE_PUBLIC" },
       "applyTo": ["install", "update"],
       "required": true
     },
     "reticulationMode": {
       "definition": "reticulationMode",
-      "destination": {},
+      "destination": { "env": "RETICULATION_MODE" },
       "description": "How to perform the reticulation. Quantum options require NIY (Not Invented Yet) processor at minimum."
     }
   },

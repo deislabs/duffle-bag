@@ -1,3 +1,4 @@
+import 'electron';
 import * as path from 'path';
 import * as request from 'request-promise-native';
 import * as cnab from 'cnabjs';

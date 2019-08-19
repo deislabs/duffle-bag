@@ -157,12 +157,11 @@ export default class Installer extends React.Component<Properties, State, {}>  {
         <Form>
           <Segment>
             <Header sub>Install as</Header>
-            <Form.Group inline>
+            <Segment>
               <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
-            </Form.Group>
-            <Form.Group inline>
+              
               {...this.installationNameValidityPanel()}
-            </Form.Group>
+            </Segment>
           </Segment>
           <Segment>
             <Header sub>Installation parameters</Header>
@@ -192,10 +191,10 @@ export default class Installer extends React.Component<Properties, State, {}>  {
 
   private installationNameValidityPanel(): JSX.Element[] {
     if (this.state.installationNameExists === undefined) {
-      return [(<Message info>Checking installation name...</Message>)];
+      return [(<Message info inline>Checking installation name...</Message>)];
     }
     if (this.state.installationNameExists) {
-      return [(<Message>Name in use</Message>)];  // TODO: for some reason the 'error' option causes it not to show... ETA: it's because error blocks are shown only when the *form* is in an error state
+      return [(<Message inline>Name in use</Message>)];  // TODO: for some reason the 'error' option causes it not to show... ETA: it's because error blocks are shown only when the *form* is in an error state
     }
     return [];
   }

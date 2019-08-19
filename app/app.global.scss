@@ -47,6 +47,21 @@ $yellowl: #FFF3E6;
   transition: $property $duration $easing;
 }
 
+@mixin affixLabel {
+  color: white;
+  padding: 0rem 0.66rem;
+  position: absolute;
+  left: 0.5rem;
+  line-height: 1.55;
+  margin-top: -1.75rem;
+  z-index: 1200;
+  background: $navy;
+  font-size: 0.825rem !important;
+  font-weight: bold;
+  border: 1px solid $navy;
+  border-radius: 0 0 0.25rem 0.25rem;
+}
+
 @mixin border-radius($radius1:3px, $radius2:3px) {
   -webkit-border-radius: $radius1 $radius2 $radius1 $radius2;
   -moz-border-radius: $radius1 $radius2 $radius1 $radius2;
@@ -347,6 +362,7 @@ h2.ui.header {
   padding: 0;
   line-height: 1.75;
   margin: 0 auto;
+  @include affixLabel;
 
   &.succeeded,
   &.verified {
@@ -613,6 +629,22 @@ form.ui.form {
     float: right;
     font-size: $base-sm;
     margin-bottom: -1rem;
+  }
+
+  .inline.field + .ui.message {
+    @include affixLabel;
+  }
+
+  .inline.field.error + .ui.message {
+    background: darken($red, 12.5%);
+    border-color: darken($red, 12.5%);
+  }
+
+  .segment:first-of-type > .segment {
+    
+    .field.error +.ui.message {
+      margin-top: -0.5rem !important;
+    }
   }
 
   label,

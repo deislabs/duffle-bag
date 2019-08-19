@@ -159,13 +159,13 @@ $yellowl: #FFF3E6;
 
 // CNAB Typographic Scale
 // ---------------------------------------
-$base-font:  18px;                 // 18 - p
+$base-font:  16px;                 // 16 - p
 
-$base-xxxlg: ($base-font * 4.775); // 96
-$base-xxlg:  ($base-font * 2.4);   // 48
-$base-xlg:   ($base-font * 1.8);   // 36 - h3
-$base-lg:    ($base-font * 1.2);   // 24 - h4, p.lead
-$base-sm:    ($base-font * 0.875); // 18 - small
+$base-xxxlg: ($base-font * 4.25);  // 68
+$base-xxlg:  ($base-font * 2.4);   // 38.4
+$base-xlg:   ($base-font * 1.8);   // 28.8 - h3
+$base-lg:    ($base-font * 1.2);   // 19.2 - h4, p.lead
+$base-sm:    ($base-font * 0.875); // 14 - small
 
 
 html,

@@ -159,7 +159,6 @@ export default class Installer extends React.Component<Properties, State, {}>  {
             <Header sub>Install as</Header>
             <Segment>
               <Form.Input inline key="installationName" name="installationName" label="Installation name" labelPosition="left" type="text" value={this.state.installationName} error={this.state.installationNameExists} onChange={this.handleNameChange} />
-              
               {...this.installationNameValidityPanel()}
             </Segment>
           </Segment>
@@ -266,11 +265,12 @@ export default class Installer extends React.Component<Properties, State, {}>  {
     // TODO: form items should have unique names - unfortunately the change handlers currently
     // use the sender name to key into the credentials object so probably better to change them
     // to use key or something instead
+    const inputType = (this.state.credentialValues[credential.name].kind === 'value') ? 'password' : 'text';
     const opts = this.credentialSourceKinds.map((v) => ({ text: this.credentialSourceKindText(v), value: v }));
     return (
       <Form.Group inline>
         <Form.Select inline key={credential.name} name={credential.name} options={opts} value={this.state.credentialValues[credential.name].kind} onChange={this.handleCredentialKindChange} />
-        <Form.Input inline key={credential.name} name={credential.name} label={credential.name} type="text"  value={this.state.credentialValues[credential.name].value} onChange={this.handleCredentialValueChange} />
+        <Form.Input inline key={credential.name} name={credential.name} label={credential.name} type={inputType}  value={this.state.credentialValues[credential.name].value} onChange={this.handleCredentialValueChange} />
       </Form.Group>);
   }
 

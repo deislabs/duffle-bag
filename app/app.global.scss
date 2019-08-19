@@ -536,6 +536,7 @@ h2.ui.header {
       padding: 0;
       line-height: 1.2;
       margin: 0.5rem auto 0;
+      position: relative;
 
       &.error {
         color: darken($red, 12.5%);

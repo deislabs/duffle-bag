@@ -8,6 +8,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const baseConfig = require('./webpack.config.base');
+const getLocalIdent = require('css-loader/dist/utils').getLocalIdent;
 
 module.exports = merge(baseConfig, {
   devtool: 'cheap-module-source-map',
@@ -32,7 +33,10 @@ module.exports = merge(baseConfig, {
             options: {
               //modules: true,
               importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
+              modules: {
+                mode: 'local',
+                localIdentName: '[name]__[local]--[hash:base64:5]',
+              }
             }
           },
           {
